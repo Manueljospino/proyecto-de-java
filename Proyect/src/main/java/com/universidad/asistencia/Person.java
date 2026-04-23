@@ -9,7 +9,7 @@ public class Person {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-//creamos variables
+//creamos variables, constructores, getters y setters para la clase padre llamada "Person"
     private Long id;
     private String name;
     private String mail;
