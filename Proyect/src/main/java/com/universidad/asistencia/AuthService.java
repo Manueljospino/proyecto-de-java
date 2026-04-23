@@ -24,10 +24,19 @@ public class AuthService {
         return person;
     }
 
-    public Person register(LoginRequest request) {
+    public Person register(RegisterRequest request) {
+
+        if (personRepository.findByNumberId(request.getNumberId()).isPresent()) {
+            throw new RuntimeException("Ya existe un usuario con ese número de identificación");
+        }
+
         Person person = new Person();
-        person.setNumberId(request.getNumberId());
+        person.setName(request.getName());
+        person.setMail(request.getMail());
         person.setPassword(passwordEncoder.encode(request.getPassword()));
+        person.setRole(request.getRole());
+        person.setNumberId(request.getNumberId());
+
         return personRepository.save(person);
     }
 }
