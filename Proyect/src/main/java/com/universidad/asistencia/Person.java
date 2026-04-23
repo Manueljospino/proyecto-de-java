@@ -15,13 +15,15 @@ public class Person {
     private String mail;
     private String password;
     private String role;
+    private String numberId;
     public Person() {}
 
-    public Person(String name, String mail, String password, String role) {
+    public Person(String name, String mail, String password, String role, String numberId) {
         this.name = name;
         this.mail = mail;
         this.password = password;
         this.role = role;
+        this.numberId = numberId;
     }
 
     public Long getId() { return id; }
@@ -33,6 +35,10 @@ public class Person {
     public void setPassword(String password) { this.password = password; }
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }
-
-
+    public String getNumberId() {
+        return numberId;
+    }
+    public void setNumberId(String numberId) {
+        this.numberId = numberId;
+    }
 }
