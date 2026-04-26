@@ -6,6 +6,10 @@ public class RegisterRequest {
     private String password;
     private String role;
     private String numberId;
+    private String semester;
+    private String program;
+    private String subject;
+    private String department;
 
     public RegisterRequest() {}
 
@@ -55,5 +59,37 @@ public class RegisterRequest {
 
     public void setNumberId(String numberId) {
         this.numberId = numberId;
+    }
+
+    public String getSemester() {
+        return semester;
+    }
+
+    public void setSemester(String semester) {
+        this.semester = semester;
+    }
+
+    public String getProgram() {
+        return program;
+    }
+
+    public void setProgram(String program) {
+        this.program = program;
+    }
+
+    public String getSubject() {
+        return subject;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
+
+    public String getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(String department) {
+        this.department = department;
     }
 }

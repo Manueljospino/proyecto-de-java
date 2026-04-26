@@ -3,6 +3,8 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "Usuarios")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "role", discriminatorType = DiscriminatorType.STRING)
 
 
 public class Person {
@@ -14,6 +16,7 @@ public class Person {
     private String name;
     private String mail;
     private String password;
+    @Column(insertable = false, updatable = false)
     private String role;
     private String numberId;
     public Person() {}

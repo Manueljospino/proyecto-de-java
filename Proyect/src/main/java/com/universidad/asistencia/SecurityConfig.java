@@ -19,9 +19,16 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/login", "/api/auth/hash/**").permitAll()
-                        .requestMatchers("/api/auth/register").hasRole("ADMIN")
-                        .anyRequest().authenticated()
+
+                                .requestMatchers("/api/auth/login").permitAll()
+                                .requestMatchers("/api/auth/hash/**").permitAll()
+                                .requestMatchers("/api/auth/register").hasRole("ADMIN")
+                                .requestMatchers("/api/assistance/open").hasRole("DOCENTE")
+                                .requestMatchers("/api/assistance/close/**").hasRole("DOCENTE")
+                                .requestMatchers("/api/assistance/register").hasRole("ESTUDIANTE")
+                                .requestMatchers("/api/assistance/mine").hasRole("ESTUDIANTE")
+                                .anyRequest().authenticated()
+
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

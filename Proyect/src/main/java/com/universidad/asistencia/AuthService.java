@@ -32,12 +32,32 @@ public class AuthService {
             throw new RuntimeException("Ya existe un usuario con ese número de identificación");
         }
 
-        Person person = new Person();
-        person.setName(request.getName());
-        person.setMail(request.getMail());
-        person.setPassword(passwordEncoder.encode(request.getPassword()));
-        person.setRole(request.getRole());
-        person.setNumberId(request.getNumberId());
+        Person person;
+
+        if (request.getRole().equals("ESTUDIANTE")) {
+            Student student = new Student();
+            student.setName(request.getName());
+            student.setMail(request.getMail());
+            student.setPassword(passwordEncoder.encode(request.getPassword()));
+            student.setNumberId(request.getNumberId());
+            student.setSemester(request.getSemester());
+            student.setProgram(request.getProgram());
+            student.setSubject(request.getSubject());
+            person = student;
+
+        } else if (request.getRole().equals("DOCENTE")) {
+            Teacher teacher = new Teacher();
+            teacher.setName(request.getName());
+            teacher.setMail(request.getMail());
+            teacher.setPassword(passwordEncoder.encode(request.getPassword()));
+            teacher.setNumberId(request.getNumberId());
+            teacher.setDepartment(request.getDepartment());
+            teacher.setSubject(request.getSubject());
+            person = teacher;
+
+        } else {
+            throw new RuntimeException("Rol no válido");
+        }
 
         return personRepository.save(person);
     }
