@@ -13,7 +13,10 @@ public class AuthService {
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
-    public Person login(String numberId, String password) {
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    public String login(String numberId, String password) {
         Person person = personRepository.findByNumberId(numberId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
@@ -21,11 +24,10 @@ public class AuthService {
             throw new RuntimeException("Contraseña incorrecta");
         }
 
-        return person;
+        return jwtUtil.generateToken(person);
     }
 
     public Person register(RegisterRequest request) {
-
         if (personRepository.findByNumberId(request.getNumberId()).isPresent()) {
             throw new RuntimeException("Ya existe un usuario con ese número de identificación");
         }
