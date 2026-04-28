@@ -61,4 +61,23 @@ public class AuthService {
 
         return personRepository.save(person);
     }
+    public void resetPassword(String numberId, String newPassword) {
+        Person person = personRepository.findByNumberId(numberId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        person.setPassword(passwordEncoder.encode(newPassword));
+        personRepository.save(person);
+    }
+    public void changePassword(String numberId, String currentPassword, String newPassword) {
+        Person person = personRepository.findByNumberId(numberId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        if (!passwordEncoder.matches(currentPassword, person.getPassword())) {
+            throw new RuntimeException("Contraseña actual incorrecta");
+        }
+
+        person.setPassword(passwordEncoder.encode(newPassword));
+        personRepository.save(person);
+    }
+
 }

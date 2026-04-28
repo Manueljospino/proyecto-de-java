@@ -6,5 +6,5 @@ import java.util.Optional;
 
 @Repository
 public interface SessionRepository extends JpaRepository<Session, Long> {
-    Optional<Session> findByActivaTrue();
+    Optional<Session> findByDocenteNumberIdAndActivaTrue(String numberId);
 }

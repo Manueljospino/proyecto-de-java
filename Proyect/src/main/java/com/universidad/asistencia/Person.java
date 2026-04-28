@@ -1,4 +1,5 @@
 package com.universidad.asistencia;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -15,6 +16,7 @@ public class Person {
     private Long id;
     private String name;
     private String mail;
+    @JsonIgnore
     private String password;
     @Column(insertable = false, updatable = false)
     private String role;

@@ -1,6 +1,7 @@
 package com.universidad.asistencia;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,6 +42,26 @@ public class AuthController {
         return ResponseEntity.ok(encoder.encode(password));
     }
 
+    @PutMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request) {
+        try {
+            authService.resetPassword(request.getNumberId(), request.getNewPassword());
+            return ResponseEntity.ok("Contraseña actualizada exitosamente");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/change-password")
+    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request) {
+        try {
+            String numberId = SecurityContextHolder.getContext().getAuthentication().getName();
+            authService.changePassword(numberId, request.getCurrentPassword(), request.getNewPassword());
+            return ResponseEntity.ok("Contraseña actualizada exitosamente");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 
 
 }

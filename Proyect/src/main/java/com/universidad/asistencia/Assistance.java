@@ -1,5 +1,6 @@
 package com.universidad.asistencia;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 
@@ -22,6 +23,7 @@ public class Assistance {
     @JoinColumn(name = "teacher_id")
     private Teacher teacher;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "session_id")
     private Session session;

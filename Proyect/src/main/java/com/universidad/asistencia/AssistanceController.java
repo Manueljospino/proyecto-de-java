@@ -26,10 +26,10 @@ public class AssistanceController {
 
     // Estudiante registra asistencia
     @PostMapping("/register")
-    public ResponseEntity<?> register() {
+    public ResponseEntity<?> register(@RequestBody AssistanceRequest request) {
         try {
-            String numberId = SecurityContextHolder.getContext().getAuthentication().getName();
-            Assistance assistance = assistanceService.registerAssistance(numberId);
+            String studentNumberId = SecurityContextHolder.getContext().getAuthentication().getName();
+            Assistance assistance = assistanceService.registerAssistance(studentNumberId, request.getTeacherNumberId());
             return ResponseEntity.ok("Asistencia registrada exitosamente");
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

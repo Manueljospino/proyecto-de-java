@@ -19,7 +19,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-
+                                .requestMatchers("/api/auth/reset-password").hasRole("ADMIN")
                                 .requestMatchers("/api/auth/login").permitAll()
                                 .requestMatchers("/api/auth/hash/**").permitAll()
                                 .requestMatchers("/api/auth/register").hasRole("ADMIN")
@@ -27,6 +27,7 @@ public class SecurityConfig {
                                 .requestMatchers("/api/assistance/close/**").hasRole("DOCENTE")
                                 .requestMatchers("/api/assistance/register").hasRole("ESTUDIANTE")
                                 .requestMatchers("/api/assistance/mine").hasRole("ESTUDIANTE")
+                                .requestMatchers("/api/auth/change-password").authenticated()
                                 .anyRequest().authenticated()
 
                 )
@@ -38,4 +39,6 @@ public class SecurityConfig {
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
+
 }

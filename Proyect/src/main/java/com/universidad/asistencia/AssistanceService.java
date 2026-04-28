@@ -23,6 +23,11 @@ public class AssistanceService {
         Teacher teacher = (Teacher) personRepository.findByNumberId(numberId)
                 .orElseThrow(() -> new RuntimeException("Docente no encontrado"));
 
+        // Verificar si ya tiene una sesión activa
+        if (sessionRepository.findByDocenteNumberIdAndActivaTrue(numberId).isPresent()) {
+            throw new RuntimeException("Ya tienes una clase abierta");
+        }
+
         Session session = new Session();
         session.setDocente(teacher);
         session.setMateria(subject);
@@ -33,11 +38,11 @@ public class AssistanceService {
     }
 
     // Estudiante registra su asistencia
-    public Assistance registerAssistance(String numberId) {
-        Session session = sessionRepository.findByActivaTrue()
-                .orElseThrow(() -> new RuntimeException("No hay ninguna clase abierta"));
+    public Assistance registerAssistance(String studentNumberId, String teacherNumberId) {
+        Session session = sessionRepository.findByDocenteNumberIdAndActivaTrue(teacherNumberId)
+                .orElseThrow(() -> new RuntimeException("No hay ninguna clase abierta para ese docente"));
 
-        Student student = (Student) personRepository.findByNumberId(numberId)
+        Student student = (Student) personRepository.findByNumberId(studentNumberId)
                 .orElseThrow(() -> new RuntimeException("Estudiante no encontrado"));
 
         Assistance assistance = new Assistance();
@@ -51,9 +56,31 @@ public class AssistanceService {
     }
 
     // Docente cierra la clase
+    @Autowired
+    private StudentRepository studentRepository;
+
     public void closeSession(Long sessionId) {
         Session session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new RuntimeException("Sesión no encontrada"));
+
+        // Buscar estudiantes que no registraron asistencia
+        List<Student> allStudents = studentRepository.findAll();
+        List<String> presentStudents = session.getAssistances().stream()
+                .map(a -> a.getStudent().getNumberId())
+                .toList();
+
+        for (Student student : allStudents) {
+            if (!presentStudents.contains(student.getNumberId())) {
+                Assistance absence = new Assistance();
+                absence.setStudent(student);
+                absence.setTeacher(session.getDocente());
+                absence.setSession(session);
+                absence.setDate(LocalDate.now());
+                absence.setState("Ausente");
+                assistanceRepository.save(absence);
+            }
+        }
+
         session.setActiva(false);
         sessionRepository.save(session);
     }

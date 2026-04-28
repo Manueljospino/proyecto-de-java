@@ -1,5 +1,6 @@
 package com.universidad.asistencia;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -8,9 +9,11 @@ import java.util.List;
 @Table(name = "sesiones")
 public class Session {
 
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
 
     private String materia;
     private LocalDateTime fechaApertura;
@@ -20,6 +23,7 @@ public class Session {
     @JoinColumn(name = "docente_id")
     private Teacher docente;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "session", cascade = CascadeType.ALL)
     private List<Assistance> assistances;
     public Session() {}
@@ -33,6 +37,6 @@ public class Session {
     public void setActiva(boolean activa) { this.activa = activa; }
     public Teacher getDocente() { return docente; }
     public void setDocente(Teacher docente) { this.docente = docente; }
-    public List<Assistance> getAsistencias() { return assistances; }
-    public void setAsistencias(List<Assistance> asistencias) { this.assistances = asistencias; }
+    public List<Assistance> getAssistances() { return assistances; }
+    public void setAssistances(List<Assistance> asistencias) { this.assistances = asistencias; }
 }
