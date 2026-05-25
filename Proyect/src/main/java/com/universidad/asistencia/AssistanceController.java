@@ -23,7 +23,15 @@ public class AssistanceController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-
+    @GetMapping("/active-sessions")
+    public ResponseEntity<?> getActiveSessions() {
+        try {
+            String studentNumberId = SecurityContextHolder.getContext().getAuthentication().getName();
+            return ResponseEntity.ok(assistanceService.getActiveSessions(studentNumberId));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
     // Estudiante registra asistencia
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody AssistanceRequest request) {
@@ -53,6 +61,15 @@ public class AssistanceController {
         try {
             String numberId = SecurityContextHolder.getContext().getAuthentication().getName();
             return ResponseEntity.ok(assistanceService.getMyAssistance(numberId));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+//profesor ve el listado de asistidos
+    @GetMapping("/session/{sessionId}")
+    public ResponseEntity<?> getSessionAssistance(@PathVariable Long sessionId) {
+        try {
+            return ResponseEntity.ok(assistanceService.getSessionAssistance(sessionId));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

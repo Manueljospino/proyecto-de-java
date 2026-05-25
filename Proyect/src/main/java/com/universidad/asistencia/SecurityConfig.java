@@ -20,7 +20,11 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                                 .requestMatchers("/api/auth/reset-password").hasRole("ADMIN")
+                                .requestMatchers("/api/assistance/session/**").hasRole("DOCENTE")
+                                .requestMatchers("/api/inscription/inscribe").hasRole("ADMIN")
+                                .requestMatchers("/api/inscription/mine").hasRole("ESTUDIANTE")
                                 .requestMatchers("/api/auth/login").permitAll()
+                                .requestMatchers("/api/assistance/active-sessions").hasRole("ESTUDIANTE")
                                 .requestMatchers("/api/auth/hash/**").permitAll()
                                 .requestMatchers("/api/auth/register").hasRole("ADMIN")
                                 .requestMatchers("/api/assistance/open").hasRole("DOCENTE")

@@ -9,6 +9,9 @@ import java.util.List;
 @Service
 public class AssistanceService {
 
+
+    @Autowired
+    private InscriptionRepository inscriptionRepository;
     @Autowired
     private SessionRepository sessionRepository;
 
@@ -17,6 +20,17 @@ public class AssistanceService {
 
     @Autowired
     private PersonRepository personRepository;
+
+    public List<Session> getActiveSessions(String studentNumberId) {
+        List<Inscription> inscriptions = inscriptionRepository.findByStudentNumberId(studentNumberId);
+
+        return inscriptions.stream()
+                .map(inscription -> sessionRepository
+                        .findByDocenteNumberIdAndActivaTrue(inscription.getTeacher().getNumberId())
+                        .orElse(null))
+                .filter(session -> session != null)
+                .toList();
+    }
 
     // Docente abre la clase
     public Session openSession(String numberId, String subject) {
@@ -88,5 +102,9 @@ public class AssistanceService {
     // Estudiante ve su asistencia
     public List<Assistance> getMyAssistance(String numberId) {
         return assistanceRepository.findByStudentNumberId(numberId);
+    }
+// profesor ve la lista de estudiantes
+    public List<Assistance> getSessionAssistance(Long sessionId) {
+        return assistanceRepository.findBySessionId(sessionId);
     }
 }
