@@ -1,5 +1,11 @@
-package com.universidad.asistencia;
+package com.universidad.asistencia.Service;
 
+import com.universidad.asistencia.Entities.Person;
+import com.universidad.asistencia.Entities.RegisterRequest;
+import com.universidad.asistencia.Entities.Student;
+import com.universidad.asistencia.Entities.Teacher;
+import com.universidad.asistencia.Utils.JwtUtil;
+import com.universidad.asistencia.Repositories.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;

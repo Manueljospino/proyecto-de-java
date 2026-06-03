@@ -1,5 +1,6 @@
-package com.universidad.asistencia;
+package com.universidad.asistencia.Repositories;
 
+import com.universidad.asistencia.Entities.Person;
 import  org.springframework.data.jpa.repository.JpaRepository;
 import  org.springframework.stereotype.Repository;
 import java.util.Optional;

@@ -1,5 +1,10 @@
-package com.universidad.asistencia;
+package com.universidad.asistencia.Service;
 
+import com.universidad.asistencia.Entities.Inscription;
+import com.universidad.asistencia.Entities.Student;
+import com.universidad.asistencia.Entities.Teacher;
+import com.universidad.asistencia.Repositories.InscriptionRepository;
+import com.universidad.asistencia.Repositories.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;

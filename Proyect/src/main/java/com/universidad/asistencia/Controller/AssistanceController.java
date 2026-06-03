@@ -1,5 +1,9 @@
-package com.universidad.asistencia;
+package com.universidad.asistencia.Controller;
 
+import com.universidad.asistencia.Entities.Assistance;
+import com.universidad.asistencia.Entities.AssistanceRequest;
+import com.universidad.asistencia.Entities.Session;
+import com.universidad.asistencia.Service.AssistanceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;

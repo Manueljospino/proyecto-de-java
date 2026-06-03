@@ -1,5 +1,6 @@
-package com.universidad.asistencia;
+package com.universidad.asistencia.Config;
 
+import com.universidad.asistencia.Utils.JwtFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

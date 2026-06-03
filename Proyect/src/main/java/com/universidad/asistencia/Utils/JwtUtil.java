@@ -1,5 +1,6 @@
-package com.universidad.asistencia;
+package com.universidad.asistencia.Utils;
 
+import com.universidad.asistencia.Entities.Person;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;

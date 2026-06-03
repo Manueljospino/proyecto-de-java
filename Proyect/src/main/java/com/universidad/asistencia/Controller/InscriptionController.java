@@ -1,5 +1,8 @@
-package com.universidad.asistencia;
+package com.universidad.asistencia.Controller;
 
+import com.universidad.asistencia.Entities.Inscription;
+import com.universidad.asistencia.Entities.InscriptionRequest;
+import com.universidad.asistencia.Service.InscriptionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

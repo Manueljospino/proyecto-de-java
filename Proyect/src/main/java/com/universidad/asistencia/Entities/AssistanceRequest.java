@@ -1,4 +1,4 @@
-package com.universidad.asistencia;
+package com.universidad.asistencia.Entities;
 
 public class AssistanceRequest {
     private String numberId;

@@ -1,4 +1,9 @@
-package com.universidad.asistencia;
+package com.universidad.asistencia.Controller;
+import com.universidad.asistencia.Entities.ChangePasswordRequest;
+import com.universidad.asistencia.Entities.LoginRequest;
+import com.universidad.asistencia.Entities.RegisterRequest;
+import com.universidad.asistencia.Entities.ResetPasswordRequest;
+import com.universidad.asistencia.Service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
