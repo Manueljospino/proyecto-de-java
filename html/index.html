@@ -1,0 +1,31 @@
+<script src="Conect.js"></script>
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+</head>
+<body>
+    <input id="numberId" placeholder="ID" />
+    <input id="password" type="password" placeholder="Contraseña" />
+    <button onclick="handleLogin()">Entrar</button>
+
+    <script src="Conect.js"></script>
+    <script>
+        async function handleLogin() {
+            const numberId = document.getElementById('numberId').value;
+            const password = document.getElementById('password').value;
+
+            await login(numberId, password); // función de tu Conect.js
+
+            // Redirigir según el rol
+            const rol = getRolFromToken();
+            if (rol.includes('DOCENTE'))        location.href = 'docente.html';
+            else if (rol.includes('ESTUDIANTE')) location.href = 'estudiante.html';
+            else if (rol.includes('ADMIN'))      location.href = 'admin.html';
+        }
+    </script>
+
+</body>
+</html>
