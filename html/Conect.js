@@ -1,56 +1,100 @@
-// 1. Login → guardar token
+const BASE = 'http://localhost:8080';
+
+// ── Auth ──────────────────────────────────────────────
 async function login(numberId, password) {
-  const res = await fetch('http://localhost:8080/api/auth/login', {
+  const res = await fetch(`${BASE}/api/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ numberId, password })
   });
-  const token = await res.text(); // tu backend devuelve el token como texto plano
+  if (!res.ok) throw new Error(await res.text());
+  const token = await res.text();
   localStorage.setItem('jwt', token);
+  return token;
 }
 
-// 2. Todas las demás llamadas llevan el token en el header
-async function fetchConAuth(url, options = {}) {
-  const token = localStorage.getItem('jwt');
-  return fetch('http://localhost:8080' + url, {
+function logout() {
+  localStorage.removeItem('jwt');
+  location.href = 'index.html';
+}
+
+function getToken() {
+  return localStorage.getItem('jwt');
+}
+
+function getPayload() {
+  const token = getToken();
+  if (!token) return null;
+  return JSON.parse(atob(token.split('.')[1]));
+}
+
+function getRole() {
+  const p = getPayload();
+  return p ? p.role : null;
+}
+
+function getName() {
+  const p = getPayload();
+  return p ? p.name : '';
+}
+
+function requireRole(role) {
+  const actual = getRole();
+  if (!actual || actual !== role) {
+    alert('No tienes permiso para acceder a esta página.');
+    location.href = 'index.html';
+  }
+}
+
+// ── Fetch autenticado ─────────────────────────────────
+async function api(path, options = {}) {
+  const token = getToken();
+  const res = await fetch(BASE + path, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token,
-      ...options.headers
+      'Authorization': token ? `Bearer ${token}` : '',
+      ...(options.headers || {})
     }
   });
+  if (!res.ok) throw new Error(await res.text());
+  const text = await res.text();
+  try { return JSON.parse(text); } catch { return text; }
 }
 
-// 3. Ejemplo: estudiante registra asistencia
-async function registrarAsistencia(teacherNumberId) {
-  const res = await fetchConAuth('/api/assistance/register', {
-    method: 'POST',
-    body: JSON.stringify({ teacherNumberId })
-  });
-  const msg = await res.text();
-  alert(msg);
+// ── Asistencia ────────────────────────────────────────
+function getActiveSessions()               { return api('/api/assistance/active-sessions'); }
+function registerAssistance(teacherNumberId) { return api('/api/assistance/register', { method: 'POST', body: JSON.stringify({ teacherNumberId }) }); }
+function getMyAssistance()                 { return api('/api/assistance/mine'); }
+function openSession(subject)              { return api(`/api/assistance/open?subject=${encodeURIComponent(subject)}`, { method: 'POST' }); }
+function closeSession(sessionId)           { return api(`/api/assistance/close/${sessionId}`, { method: 'PUT' }); }
+function getSessionAssistance(sessionId)   { return api(`/api/assistance/session/${sessionId}`); }
+
+// ── Inscripciones ─────────────────────────────────────
+function getMyInscriptions()               { return api('/api/inscription/mine'); }
+function inscribeStudent(studentNumberId, teacherNumberId) {
+  return api('/api/inscription/inscribe', { method: 'POST', body: JSON.stringify({ studentNumberId, teacherNumberId }) });
 }
 
-function getRolFromToken() {
-  const token = localStorage.getItem('jwt');
-  const payload = JSON.parse(atob(token.split('.')[1]));
-  return payload.roles; // o como lo hayas nombrado en JwtUtil
+// ── Admin / Auth ──────────────────────────────────────
+function registerUser(data)                { return api('/api/auth/register', { method: 'POST', body: JSON.stringify(data) }); }
+function resetPassword(numberId, newPassword) {
+  return api('/api/auth/reset-password', { method: 'PUT', body: JSON.stringify({ numberId, newPassword }) });
+}
+function changePassword(currentPassword, newPassword) {
+  return api('/api/auth/change-password', { method: 'PUT', body: JSON.stringify({ currentPassword, newPassword }) });
 }
 
-async function login(numberId, password) {
-    try {
-        const res = await fetch('http://localhost:8080/api/auth/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ numberId, password })
-        });
+// ── UI helpers ────────────────────────────────────────
+function showAlert(id, message, type = 'success') {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = message;
+  el.className = `alert alert-${type} show`;
+  setTimeout(() => el.classList.remove('show'), 4000);
+}
 
-        if (!res.ok) throw new Error(await res.text());
-
-        const token = await res.text();
-        localStorage.setItem('jwt', token);
-    } catch (e) {
-        alert('Error al iniciar sesión: ' + e.message);
-    }
+function setNavUser() {
+  const el = document.getElementById('nav-user-name');
+  if (el) el.textContent = getName();
 }

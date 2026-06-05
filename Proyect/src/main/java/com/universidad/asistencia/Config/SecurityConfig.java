@@ -27,6 +27,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // ← AÑADIR ESTO
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/reset-password").hasRole("ADMIN")
+                        .requestMatchers("/api/auth/delete/**").hasRole("ADMIN")
                         .requestMatchers("/api/assistance/session/**").hasRole("DOCENTE")
                         .requestMatchers("/api/inscription/inscribe").hasRole("ADMIN")
                         .requestMatchers("/api/inscription/mine").hasRole("ESTUDIANTE")
@@ -39,6 +40,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/assistance/register").hasRole("ESTUDIANTE")
                         .requestMatchers("/api/assistance/mine").hasRole("ESTUDIANTE")
                         .requestMatchers("/api/auth/change-password").authenticated()
+                        .requestMatchers("/api/auth/find/**").hasRole("ADMIN")
+                        .requestMatchers("/api/auth/users").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
@@ -61,4 +64,6 @@ public class SecurityConfig {
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
+
 }

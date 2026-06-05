@@ -1,8 +1,5 @@
 package com.universidad.asistencia.Controller;
-import com.universidad.asistencia.Entities.ChangePasswordRequest;
-import com.universidad.asistencia.Entities.LoginRequest;
-import com.universidad.asistencia.Entities.RegisterRequest;
-import com.universidad.asistencia.Entities.ResetPasswordRequest;
+import com.universidad.asistencia.Entities.*;
 import com.universidad.asistencia.Service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -67,6 +64,32 @@ public class AuthController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+    @DeleteMapping("/delete/{numberId}")
+    public ResponseEntity<?> deleteUser(@PathVariable String numberId) {
+        try {
+            authService.deleteUser(numberId);
+            return ResponseEntity.ok("Usuario eliminado exitosamente");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 
+    @GetMapping("/find/{numberId}")
+    public ResponseEntity<?> findUser(@PathVariable String numberId) {
+        try {
+            Person person = authService.findUser(numberId);
+            return ResponseEntity.ok(person);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+    @GetMapping("/users")
+    public ResponseEntity<?> getAllUsers() {
+        try {
+            return ResponseEntity.ok(authService.getAllUsers());
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 
 }

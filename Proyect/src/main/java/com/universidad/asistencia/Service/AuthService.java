@@ -6,24 +6,34 @@ import com.universidad.asistencia.Entities.Student;
 import com.universidad.asistencia.Entities.Teacher;
 import com.universidad.asistencia.Utils.JwtUtil;
 import com.universidad.asistencia.Repositories.PersonRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 
 @Service
 public class AuthService {
 
     @Autowired
-    private PersonRepository personRepository;
+    private PersonRepository PersonRepository;
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
+
+
 
     @Autowired
     private JwtUtil jwtUtil;
 
     public String login(String numberId, String password) {
-        Person person = personRepository.findByNumberId(numberId)
+        Person person = PersonRepository.findByNumberId(numberId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         if (!passwordEncoder.matches(password, person.getPassword())) {
@@ -34,7 +44,7 @@ public class AuthService {
     }
 
     public Person register(RegisterRequest request) {
-        if (personRepository.findByNumberId(request.getNumberId()).isPresent()) {
+        if (PersonRepository.findByNumberId(request.getNumberId()).isPresent()) {
             throw new RuntimeException("Ya existe un usuario con ese número de identificación");
         }
 
@@ -65,17 +75,17 @@ public class AuthService {
             throw new RuntimeException("Rol no válido");
         }
 
-        return personRepository.save(person);
+        return PersonRepository.save(person);
     }
     public void resetPassword(String numberId, String newPassword) {
-        Person person = personRepository.findByNumberId(numberId)
+        Person person = PersonRepository.findByNumberId(numberId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         person.setPassword(passwordEncoder.encode(newPassword));
-        personRepository.save(person);
+        PersonRepository.save(person);
     }
     public void changePassword(String numberId, String currentPassword, String newPassword) {
-        Person person = personRepository.findByNumberId(numberId)
+        Person person = PersonRepository.findByNumberId(numberId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         if (!passwordEncoder.matches(currentPassword, person.getPassword())) {
@@ -83,7 +93,38 @@ public class AuthService {
         }
 
         person.setPassword(passwordEncoder.encode(newPassword));
-        personRepository.save(person);
+        PersonRepository.save(person);
     }
+    public void deleteUser(String numberId) {
+        Person person = PersonRepository.findByNumberId(numberId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        PersonRepository.delete(person);
+    }
+
+    public Person findUser(String numberId) {
+        return PersonRepository.findByNumberId(numberId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+    }
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    public List<Map<String, Object>> getAllUsers() {
+        List<Object[]> rows = entityManager.createNativeQuery(
+                "SELECT id, name, mail, role, number_id FROM Usuarios"
+        ).getResultList();
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Object[] row : rows) {
+            Map<String, Object> user = new HashMap<>();
+            user.put("id",       row[0]);
+            user.put("name",     row[1]);
+            user.put("mail",     row[2]);
+            user.put("role",     row[3]);
+            user.put("numberId", row[4]);
+            result.add(user);
+        }
+        return result;
+    }
+
 
 }
