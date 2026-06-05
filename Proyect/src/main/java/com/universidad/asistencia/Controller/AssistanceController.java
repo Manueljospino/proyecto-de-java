@@ -78,4 +78,11 @@ public class AssistanceController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @GetMapping("/my-sessions")
+    public ResponseEntity<?> getMySessions() {
+        String numberId = SecurityContextHolder.getContext().getAuthentication().getName();
+        return ResponseEntity.ok(assistanceService.getSessionsByTeacher(numberId));
+    }
+
 }

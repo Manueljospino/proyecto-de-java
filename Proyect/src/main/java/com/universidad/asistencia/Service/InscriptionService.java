@@ -25,6 +25,10 @@ public class InscriptionService {
         Teacher teacher = (Teacher) personRepository.findByNumberId(teacherNumberId)
                 .orElseThrow(() -> new RuntimeException("Docente no encontrado"));
 
+        if (inscriptionRepository.existsByStudentNumberIdAndTeacherNumberId(studentNumberId, teacherNumberId)) {
+            throw new RuntimeException("El estudiante ya está inscrito en esta clase.");
+        }
+
         Inscription inscription = new Inscription();
         inscription.setStudent(student);
         inscription.setTeacher(teacher);

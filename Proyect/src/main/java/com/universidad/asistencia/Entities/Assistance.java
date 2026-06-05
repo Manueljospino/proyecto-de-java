@@ -23,7 +23,6 @@ public class Assistance {
     @JoinColumn(name = "teacher_id")
     private Teacher teacher;
 
-    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "session_id")
     private Session session;

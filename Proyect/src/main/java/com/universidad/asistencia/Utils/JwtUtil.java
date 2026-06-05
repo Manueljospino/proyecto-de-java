@@ -22,7 +22,7 @@ public class JwtUtil {
     }
 
     private final Key secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    private final long EXPIRATION = 1000 * 60 * 60 * 2; // 2 horas
+    private final long EXPIRATION = 1000 * 60 * 60; // 1 hora
 
     public String generateToken(Person person) {
         return Jwts.builder()

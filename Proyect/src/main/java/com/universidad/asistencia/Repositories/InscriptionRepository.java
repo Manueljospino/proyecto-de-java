@@ -8,4 +8,5 @@ import java.util.List;
 @Repository
 public interface InscriptionRepository extends JpaRepository<Inscription, Long> {
     List<Inscription> findByStudentNumberId(String numberId);
+    boolean existsByStudentNumberIdAndTeacherNumberId(String studentNumberId, String teacherNumberId);
 }

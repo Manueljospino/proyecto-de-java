@@ -109,4 +109,11 @@ public class AssistanceService {
     public List<Assistance> getSessionAssistance(Long sessionId) {
         return assistanceRepository.findBySessionId(sessionId);
     }
+
+    public List<Session> getSessionsByTeacher(String teacherNumberId) {
+        Teacher docente = (Teacher) personRepository.findByNumberId(teacherNumberId)
+                .orElseThrow(() -> new RuntimeException("Docente no encontrado"));
+        return sessionRepository.findByDocente(docente);
+    }
+
 }
