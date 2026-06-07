@@ -110,7 +110,7 @@ public class AuthService {
 
     public List<Map<String, Object>> getAllUsers() {
         List<Object[]> rows = entityManager.createNativeQuery(
-                "SELECT id, name, mail, role, number_id FROM Usuarios"
+                "SELECT id, name, mail, role, number_id FROM usuarios"
         ).getResultList();
 
         List<Map<String, Object>> result = new ArrayList<>();

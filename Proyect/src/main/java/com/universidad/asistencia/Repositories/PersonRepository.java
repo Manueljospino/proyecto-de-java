@@ -12,7 +12,7 @@ import java.util.Optional;
 public interface PersonRepository extends JpaRepository<Person, Long> {
     Optional<Person> findByNumberId(String numberId);
     void deleteByNumberId(String numberId);
-    @Query(value = "SELECT * FROM Usuarios", nativeQuery = true)
+    @Query(value = "SELECT * FROM usuarios", nativeQuery = true)
     List<Person> findAllPersons();
 }
 
