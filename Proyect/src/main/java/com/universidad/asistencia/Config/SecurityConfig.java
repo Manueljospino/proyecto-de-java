@@ -29,27 +29,27 @@ public class SecurityConfig {
                         // Auth
                         .requestMatchers("/api/auth/login").permitAll()
                         .requestMatchers("/api/auth/hash/**").permitAll()
-                        .requestMatchers("/api/auth/register").hasRole("ADMIN")
-                        .requestMatchers("/api/auth/reset-password").hasRole("ADMIN")
+                        .requestMatchers("/api/auth/register").hasAnyRole("ADMIN", "SUBADMIN")
+                        .requestMatchers("/api/auth/reset-password").hasAnyRole("ADMIN", "SUBADMIN")
                         .requestMatchers("/api/auth/delete/**").hasRole("ADMIN")
-                        .requestMatchers("/api/auth/find/**").hasRole("ADMIN")
-                        .requestMatchers("/api/auth/users").hasRole("ADMIN")
+                        .requestMatchers("/api/auth/find/**").hasAnyRole("ADMIN", "SUBADMIN")
+                        .requestMatchers("/api/auth/users").hasAnyRole("ADMIN", "SUBADMIN")
                         .requestMatchers("/api/auth/change-password").authenticated()
 
                         // Materias
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/subjects").authenticated()
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/subjects/with-teachers").hasRole("ADMIN")
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/subjects/with-teachers").hasAnyRole("ADMIN", "SUBADMIN")
                         .requestMatchers("/api/subjects/**").hasRole("ADMIN")
 
                         // Asignación docente-materia
-                        .requestMatchers("/api/teacher-subjects/assign").hasRole("ADMIN")
+                        .requestMatchers("/api/teacher-subjects/assign").hasAnyRole("ADMIN", "SUBADMIN")
                         .requestMatchers("/api/teacher-subjects/unassign").hasRole("ADMIN")
-                        .requestMatchers("/api/teacher-subjects/by-teacher/**").hasRole("ADMIN")
-                        .requestMatchers("/api/teacher-subjects/by-subject/**").hasRole("ADMIN")
+                        .requestMatchers("/api/teacher-subjects/by-teacher/**").hasAnyRole("ADMIN", "SUBADMIN")
+                        .requestMatchers("/api/teacher-subjects/by-subject/**").hasAnyRole("ADMIN", "SUBADMIN")
                         .requestMatchers("/api/teacher-subjects/my-subjects").hasRole("DOCENTE")
 
                         // Inscripciones
-                        .requestMatchers("/api/inscription/inscribe").hasRole("ADMIN")
+                        .requestMatchers("/api/inscription/inscribe").hasAnyRole("ADMIN", "SUBADMIN")
                         .requestMatchers("/api/inscription/mine").hasRole("ESTUDIANTE")
 
                         // Asistencia - Docente

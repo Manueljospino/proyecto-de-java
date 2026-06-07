@@ -19,6 +19,9 @@
   <main class="page">
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
       <h1 class="page-title" style="margin:0;">Panel de Administrador</h1>
+      <a href="Users.html" class="btn btn-secondary">
+        <i class="ti ti-users"></i> Ver todos los usuarios
+      </a>
     </div>
 
     <!-- Registrar usuario -->
@@ -53,7 +56,8 @@
             <option value="">Selecciona un rol</option>
             <option value="ESTUDIANTE">Estudiante</option>
             <option value="DOCENTE">Docente</option>
-            <option value="ADMIN">Administrador</option>
+            <option value="SUBADMIN">Sub-administrador</option>
+            <option value="ADMIN" id="opt-admin" style="display:none;">Administrador</option>
           </select>
         </div>
         <div class="field" id="wrap-semester">
@@ -291,9 +295,28 @@
   <script src="../Conect.js"></script>
   <script src="../sidebar.js"></script>
   <script>
-    requireRole('ADMIN');
+    // Permitir SUBADMIN también
+    const __payload = (() => { try { const t = localStorage.getItem('jwt'); if (!t) return null; const b = t.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'); return JSON.parse(decodeURIComponent(atob(b).split('').map(c=>'%'+('00'+c.charCodeAt(0).toString(16)).slice(-2)).join(''))); } catch(e){return null;} })();
+    if (!__payload || (__payload.role !== 'ADMIN' && __payload.role !== 'SUBADMIN')) { location.href = '../index.html'; }
     setNavUser();
-    buildSidebar('ADMIN', 'admin');
+    buildSidebar(__payload.role === 'SUBADMIN' ? 'SUBADMIN' : 'ADMIN', 'admin');
+
+    // Ocultar secciones no permitidas para SUBADMIN
+    if (__payload.role === 'SUBADMIN') {
+      // Mostrar opción admin en select solo para ADMIN
+      const optAdmin = document.getElementById('opt-admin');
+      if (optAdmin) optAdmin.style.display = 'none';
+      // Ocultar sección eliminar usuario
+      const eliminarCard = document.getElementById('card-eliminar-usuario');
+      if (eliminarCard) eliminarCard.style.display = 'none';
+      // Ocultar eliminar materia
+      const eliminarMateria = document.getElementById('card-eliminar-materia');
+      if (eliminarMateria) eliminarMateria.style.display = 'none';
+    } else {
+      // ADMIN puede ver la opción admin
+      const optAdmin = document.getElementById('opt-admin');
+      if (optAdmin) optAdmin.style.display = '';
+    }
 
     // ── Usuarios ──
     async function registrarUsuario() {

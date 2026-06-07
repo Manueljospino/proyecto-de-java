@@ -116,7 +116,10 @@
   <script src="../Conect.js"></script>
   <script src="../sidebar.js"></script>
   <script>
-    requireRole('ADMIN');
+    // Allow SUBADMIN too
+    const __p = (() => { try { const t = localStorage.getItem('jwt'); if (!t) return null; const b = t.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'); return JSON.parse(decodeURIComponent(atob(b).split('').map(c=>'%'+('00'+c.charCodeAt(0).toString(16)).slice(-2)).join(''))); } catch(e){return null;} })();
+    if (!__p || (__p.role !== 'ADMIN' && __p.role !== 'SUBADMIN')) { location.href = '../index.html'; }
+    window.__userRole = __p ? __p.role : 'ADMIN';
     setNavUser();
     buildSidebar('ADMIN', 'users');
 

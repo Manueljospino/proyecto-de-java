@@ -22,9 +22,43 @@ const SIDEBAR_CONFIG = {
       {
         label: 'Materias',
         items: [
-          { icon: 'ti-circle-plus', label: 'Agregar materia', action: () => goToPageAndScroll('Admin.html', 'mat-name') },
+          { icon: 'ti-book-plus', label: 'Agregar materia', action: () => goToPageAndScroll('Admin.html', 'mat-name') },
           { icon: 'ti-pencil', label: 'Editar materia', action: () => goToPageAndScroll('Admin.html', 'mat-edit-select') },
           { icon: 'ti-book-off', label: 'Eliminar materia', action: () => goToPageAndScroll('Admin.html', 'lista-materias') },
+          { icon: 'ti-books', label: 'Materias y docentes', action: () => goToPageAndScroll('Admin.html', 'lista-materias-docentes') },
+        ]
+      },
+      {
+        label: 'Docentes',
+        items: [
+          { icon: 'ti-plus', label: 'Asignar materia a docente', action: () => goToPageAndScroll('Admin.html', 'assign-teacher') },
+          { icon: 'ti-search', label: 'Ver materias de docente', action: () => goToPageAndScroll('Admin.html', 'ver-teacher-id') },
+        ]
+      },
+    ]
+  },
+  SUBADMIN: {
+    sections: [
+      {
+        label: 'Principal',
+        items: [
+          { icon: 'ti-layout-dashboard', label: 'Panel de Admin', href: 'Admin.html', page: 'admin' },
+          { icon: 'ti-users', label: 'Ver todos los usuarios', href: 'Users.html', page: 'users' },
+        ]
+      },
+      {
+        label: 'Usuarios',
+        items: [
+          { icon: 'ti-user-plus', label: 'Registrar usuario', action: () => goToPageAndScroll('Admin.html', 'r-name') },
+          { icon: 'ti-link', label: 'Inscribir estudiante', action: () => goToPageAndScroll('Admin.html', 'i-student') },
+          { icon: 'ti-key', label: 'Resetear contraseña', action: () => goToPageAndScroll('Admin.html', 'rp-id') },
+        ]
+      },
+      {
+        label: 'Materias',
+        items: [
+          { icon: 'ti-circle-plus', label: 'Agregar materia', action: () => goToPageAndScroll('Admin.html', 'mat-name') },
+          { icon: 'ti-pencil', label: 'Editar materia', action: () => goToPageAndScroll('Admin.html', 'mat-edit-select') },
           { icon: 'ti-books', label: 'Materias y docentes', action: () => goToPageAndScroll('Admin.html', 'lista-materias-docentes') },
         ]
       },
