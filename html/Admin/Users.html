@@ -199,9 +199,9 @@
                       <button class="btn-icon" title="Resetear contraseña" onclick="abrirReset('${u.numberId}', '${u.name}')">
                         <i class="ti ti-key"></i>
                       </button>
-                      <button class="btn-icon danger" title="Eliminar usuario" onclick="abrirEliminar('${u.numberId}', '${u.name}')">
+                      ${window.__userRole !== 'SUBADMIN' ? `<button class="btn-icon danger" title="Eliminar usuario" onclick="abrirEliminar('${u.numberId}', '${u.name}')">
                         <i class="ti ti-trash"></i>
-                      </button>
+                      </button>` : ''}
                     </div>
                   </td>
                 </tr>`;
