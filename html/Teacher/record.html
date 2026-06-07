@@ -113,7 +113,7 @@
         }
 
         wrap.innerHTML = data.map(s => {
-          const fecha = s.fechaApertura ? new Date(s.fechaApertura).toLocaleString('es-CO', { timeZone: 'America/Bogota' }) : '—';
+          const fecha = s.fechaApertura ? new Date(s.fechaApertura).toLocaleString('es-CO') : '—';
           const materia = s.subject?.name || '—';
           const estadoClass = s.activa ? 'open' : 'closed';
           const estadoBadge = s.activa
@@ -180,7 +180,7 @@
               </thead>
               <tbody>
                 ${data.map((a, i) => {
-                  const hora = a.date ? new Date(a.date).toLocaleString('es-CO', { timeZone: 'America/Bogota' }) : '—';
+                  const hora = a.date ? new Date(a.date).toLocaleString('es-CO') : '—';
                   const badgeClass = a.state === 'Presente' ? 'badge-green' : 'badge-red';
                   const initials = (a.student?.name || '?').split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase();
                   return `<tr>
