@@ -2,7 +2,7 @@ package com.universidad.asistencia.Entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "asistencia")
@@ -12,8 +12,8 @@ public class Assistance {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private LocalDate date;
-    private String state; // "PRESENTE", "AUSENTE", "TARDE"
+    private LocalDateTime date;
+    private String state;
 
     @ManyToOne
     @JoinColumn(name = "student_id")
@@ -30,8 +30,8 @@ public class Assistance {
     public Assistance() {}
 
     public Long getId() { return id; }
-    public LocalDate getDate() { return date; }
-    public void setDate(LocalDate date) { this.date = date; }
+    public LocalDateTime getDate() { return date; }
+    public void setDate(LocalDateTime date) { this.date = date; }
     public String getState() { return state; }
     public void setState(String state) { this.state = state; }
     public Student getStudent() { return student; }

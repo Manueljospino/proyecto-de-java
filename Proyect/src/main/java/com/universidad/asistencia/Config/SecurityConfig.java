@@ -24,25 +24,46 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // ← AÑADIR ESTO
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/reset-password").hasRole("ADMIN")
-                        .requestMatchers("/api/auth/delete/**").hasRole("ADMIN")
-                        .requestMatchers("/api/assistance/session/**").hasRole("DOCENTE")
-                        .requestMatchers("/api/inscription/inscribe").hasRole("ADMIN")
-                        .requestMatchers("/api/inscription/mine").hasRole("ESTUDIANTE")
+                        // Auth
                         .requestMatchers("/api/auth/login").permitAll()
-                        .requestMatchers("/api/assistance/active-sessions").hasRole("ESTUDIANTE")
                         .requestMatchers("/api/auth/hash/**").permitAll()
                         .requestMatchers("/api/auth/register").hasRole("ADMIN")
-                        .requestMatchers("/api/assistance/open").hasRole("DOCENTE")
-                        .requestMatchers("/api/assistance/close/**").hasRole("DOCENTE")
-                        .requestMatchers("/api/assistance/register").hasRole("ESTUDIANTE")
-                        .requestMatchers("/api/assistance/mine").hasRole("ESTUDIANTE")
-                        .requestMatchers("/api/auth/change-password").authenticated()
+                        .requestMatchers("/api/auth/reset-password").hasRole("ADMIN")
+                        .requestMatchers("/api/auth/delete/**").hasRole("ADMIN")
                         .requestMatchers("/api/auth/find/**").hasRole("ADMIN")
                         .requestMatchers("/api/auth/users").hasRole("ADMIN")
+                        .requestMatchers("/api/auth/change-password").authenticated()
+
+                        // Materias
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/subjects").authenticated()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/subjects/with-teachers").hasRole("ADMIN")
+                        .requestMatchers("/api/subjects/**").hasRole("ADMIN")
+
+                        // Asignación docente-materia
+                        .requestMatchers("/api/teacher-subjects/assign").hasRole("ADMIN")
+                        .requestMatchers("/api/teacher-subjects/unassign").hasRole("ADMIN")
+                        .requestMatchers("/api/teacher-subjects/by-teacher/**").hasRole("ADMIN")
+                        .requestMatchers("/api/teacher-subjects/by-subject/**").hasRole("ADMIN")
+                        .requestMatchers("/api/teacher-subjects/my-subjects").hasRole("DOCENTE")
+
+                        // Inscripciones
+                        .requestMatchers("/api/inscription/inscribe").hasRole("ADMIN")
+                        .requestMatchers("/api/inscription/mine").hasRole("ESTUDIANTE")
+
+                        // Asistencia - Docente
+                        .requestMatchers("/api/assistance/open").hasRole("DOCENTE")
+                        .requestMatchers("/api/assistance/close/**").hasRole("DOCENTE")
                         .requestMatchers("/api/assistance/my-sessions").hasRole("DOCENTE")
+                        .requestMatchers("/api/assistance/my-subjects").hasRole("DOCENTE")
+                        .requestMatchers("/api/assistance/session/**").hasRole("DOCENTE")
+
+                        // Asistencia - Estudiante
+                        .requestMatchers("/api/assistance/active-sessions").hasRole("ESTUDIANTE")
+                        .requestMatchers("/api/assistance/register").hasRole("ESTUDIANTE")
+                        .requestMatchers("/api/assistance/my-history").hasRole("ESTUDIANTE")
+
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
@@ -65,6 +86,4 @@ public class SecurityConfig {
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
-
 }
