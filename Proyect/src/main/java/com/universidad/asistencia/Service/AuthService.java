@@ -4,6 +4,7 @@ import com.universidad.asistencia.Entities.Person;
 import com.universidad.asistencia.Entities.RegisterRequest;
 import com.universidad.asistencia.Entities.Student;
 import com.universidad.asistencia.Entities.Teacher;
+import com.universidad.asistencia.Entities.Admin;
 import com.universidad.asistencia.Utils.JwtUtil;
 import com.universidad.asistencia.Repositories.PersonRepository;
 import jakarta.persistence.EntityManager;
@@ -70,6 +71,14 @@ public class AuthService {
             teacher.setDepartment(request.getDepartment());
             teacher.setSubject(request.getSubject());
             person = teacher;
+
+        } else if (request.getRole().equals("ADMIN")) {
+            Admin admin = new Admin();
+            admin.setName(request.getName());
+            admin.setMail(request.getMail());
+            admin.setPassword(passwordEncoder.encode(request.getPassword()));
+            admin.setNumberId(request.getNumberId());
+            person = admin;
 
         } else {
             throw new RuntimeException("Rol no válido");
