@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Usuarios · Asistencia</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <link rel="stylesheet" href="../styles.css" />  <style>
+    .filter-bar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 1.25rem; }
+    .filter-bar input { height: 38px; border: 0.5px solid var(--gray-200); border-radius: var(--radius-md); padding: 0 12px; font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none; background: var(--gray-50); color: var(--gray-800); flex: 1; min-width: 180px; }
+    .filter-bar input:focus { border-color: var(--green-600); box-shadow: 0 0 0 3px rgba(99,153,34,0.12); }
+    .filter-bar select { height: 38px; border: 0.5px solid var(--gray-200); border-radius: var(--radius-md); padding: 0 12px; font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none; background: var(--gray-50); color: var(--gray-800); cursor: pointer; }
+    .avatar-sm { width: 34px; height: 34px; border-radius: 50%; background: var(--green-50); border: 0.5px solid var(--green-200); display: inline-flex; align-items: center; justify-content: center; font-weight: 600; font-size: 12px; color: var(--green-700); flex-shrink: 0; }
+    .user-cell { display: flex; align-items: center; gap: 10px; }
+    .action-btns { display: flex; gap: 6px; }
+    .btn-icon { width: 32px; height: 32px; border-radius: var(--radius-sm); border: 0.5px solid var(--gray-200); background: var(--gray-50); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-size: 15px; transition: background 0.15s; }
+    .btn-icon:hover { background: var(--gray-100); }
+    .btn-icon.danger { border-color: #fca5a5; background: var(--red-100); color: var(--red-700); }
+    .btn-icon.danger:hover { background: #fecaca; }
+    .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 1.5rem; }
+    .stat-card { background: var(--white); border: 0.5px solid var(--gray-200); border-radius: var(--radius-md); padding: 0.9rem 1rem; }
+    .stat-card .stat-label { font-size: 12px; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
+    .stat-card .stat-num { font-size: 26px; font-weight: 600; color: var(--green-700); }
+
+    /* Modal */
+    .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 200; align-items: center; justify-content: center; }
+    .modal-bg.open { display: flex; }
+    .modal { background: var(--white); border-radius: var(--radius-lg); padding: 1.75rem; width: 360px; max-width: 90vw; box-shadow: var(--shadow-md); }
+    .modal h3 { font-size: 16px; font-weight: 600; margin-bottom: 0.25rem; }
+    .modal p { font-size: 13px; color: var(--gray-400); margin-bottom: 1.25rem; }
+    .modal .field { margin-bottom: 1rem; }
+    .modal .field label { display: block; font-size: 12px; font-weight: 500; color: var(--gray-600); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .modal .field input { width: 100%; height: 42px; border: 0.5px solid var(--gray-200); border-radius: var(--radius-md); background: var(--gray-50); color: var(--gray-800); font-family: 'DM Sans', sans-serif; font-size: 14px; padding: 0 12px; outline: none; box-sizing: border-box; }
+    .modal .field input:focus { border-color: var(--green-600); box-shadow: 0 0 0 3px rgba(99,153,34,0.12); }
+    .modal-btns { display: flex; gap: 8px; justify-content: flex-end; margin-top: 1rem; }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="brand"><i class="ti ti-school"></i> Asistencia</div>
+    <div class="nav-user">
+      <a href="Admin.html" class="btn-logout" style="display:flex; align-items:center; gap:6px; text-decoration:none;">
+        <i class="ti ti-arrow-left"></i> Panel admin
+      </a>
+      <span id="nav-user-name"></span>
+      <button class="btn-logout" onclick="logout()"><i class="ti ti-logout"></i> Salir</button>
+    </div>
+  </nav>
+
+  <main class="page">
+    <h1 class="page-title">Usuarios registrados</h1>
+
+    <!-- Stats -->
+    <div class="stat-row">
+      <div class="stat-card"><div class="stat-label">Total</div><div class="stat-num" id="stat-total">—</div></div>
+      <div class="stat-card"><div class="stat-label">Estudiantes</div><div class="stat-num" id="stat-est">—</div></div>
+      <div class="stat-card"><div class="stat-label">Docentes</div><div class="stat-num" id="stat-doc">—</div></div>
+      <div class="stat-card"><div class="stat-label">Admins</div><div class="stat-num" id="stat-adm">—</div></div>
+    </div>
+
+    <div class="card">
+      <div id="alert-users" class="alert"></div>
+
+      <!-- Filtros -->
+      <div class="filter-bar">
+        <input type="text" id="search-input" placeholder="Buscar por nombre o ID..." oninput="filtrar()" />
+        <select id="filter-role" onchange="filtrar()">
+          <option value="">Todos los roles</option>
+          <option value="ESTUDIANTE">Estudiante</option>
+          <option value="DOCENTE">Docente</option>
+          <option value="ADMIN">Admin</option>
+        </select>
+        <button class="btn btn-secondary" onclick="cargarUsuarios()">
+          <i class="ti ti-refresh"></i> Actualizar
+        </button>
+      </div>
+
+      <!-- Tabla -->
+      <div class="table-wrap" id="tabla-wrap">
+        <div class="empty"><i class="ti ti-loader"></i><p>Cargando usuarios...</p></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal resetear contraseña -->
+  <div class="modal-bg" id="modal-reset">
+    <div class="modal">
+      <h3><i class="ti ti-key" style="font-size:16px;"></i> Resetear contraseña</h3>
+      <p id="modal-reset-sub">Usuario: —</p>
+      <div id="alert-modal-reset" class="alert"></div>
+      <div class="field">
+        <label>Nueva contraseña</label>
+        <input type="password" id="modal-new-pass" placeholder="Nueva contraseña" />
+      </div>
+      <div class="modal-btns">
+        <button class="btn btn-secondary" onclick="cerrarModal('modal-reset')">Cancelar</button>
+        <button class="btn btn-primary" onclick="ejecutarReset()"><i class="ti ti-check"></i> Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal eliminar -->
+  <div class="modal-bg" id="modal-delete">
+    <div class="modal">
+      <h3 style="color:var(--red-700);"><i class="ti ti-trash" style="font-size:16px;"></i> Eliminar usuario</h3>
+      <p id="modal-delete-sub">¿Estás seguro? Esta acción no se puede deshacer.</p>
+      <div id="alert-modal-delete" class="alert"></div>
+      <div class="modal-btns">
+        <button class="btn btn-secondary" onclick="cerrarModal('modal-delete')">Cancelar</button>
+        <button class="btn btn-danger" onclick="ejecutarEliminar()"><i class="ti ti-trash"></i> Sí, eliminar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../Conect.js"></script>
+  <script src="../sidebar.js"></script>
+  <script>
+    requireRole('ADMIN');
+    setNavUser();
+    buildSidebar('ADMIN', 'users');
+
+    let todosLosUsuarios = [];
+    let usuarioActivo = null;
+
+    cargarUsuarios();
+
+    async function cargarUsuarios() {
+      const wrap = document.getElementById('tabla-wrap');
+      wrap.innerHTML = '<div class="empty"><i class="ti ti-loader"></i><p>Cargando...</p></div>';
+      try {
+        const data = await api('/api/auth/users');
+        todosLosUsuarios = data;
+        actualizarStats(data);
+        renderTabla(data);
+      } catch (e) {
+        wrap.innerHTML = `<div class="empty"><i class="ti ti-alert-circle"></i><p>${e.message}</p></div>`;
+      }
+    }
+
+    function actualizarStats(data) {
+      document.getElementById('stat-total').textContent = data.length;
+      document.getElementById('stat-est').textContent = data.filter(u => u.role === 'ESTUDIANTE').length;
+      document.getElementById('stat-doc').textContent = data.filter(u => u.role === 'DOCENTE').length;
+      document.getElementById('stat-adm').textContent = data.filter(u => u.role === 'ADMIN').length;
+    }
+
+    function filtrar() {
+      const texto = document.getElementById('search-input').value.toLowerCase();
+      const rol   = document.getElementById('filter-role').value;
+      const filtrados = todosLosUsuarios.filter(u => {
+        const coincideTexto = (u.name || '').toLowerCase().includes(texto) || (u.numberId || '').includes(texto);
+        const coincideRol   = !rol || u.role === rol;
+        return coincideTexto && coincideRol;
+      });
+      renderTabla(filtrados);
+    }
+
+    function renderTabla(usuarios) {
+      const wrap = document.getElementById('tabla-wrap');
+      if (!usuarios || usuarios.length === 0) {
+        wrap.innerHTML = '<div class="empty"><i class="ti ti-users-off"></i><p>No se encontraron usuarios.</p></div>';
+        return;
+      }
+      wrap.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Usuario</th>
+              <th>ID</th>
+              <th>Correo</th>
+              <th>Rol</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${usuarios.map(u => {
+              const initials = (u.name || '?').split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase();
+              const rolClass = u.role === 'ESTUDIANTE' ? 'badge-green' : u.role === 'DOCENTE' ? 'badge-gray' : 'badge-red';
+              return `
+                <tr>
+                  <td>
+                    <div class="user-cell">
+                      <div class="avatar-sm">${initials}</div>
+                      <span style="font-weight:500;">${u.name || '—'}</span>
+                    </div>
+                  </td>
+                  <td style="font-size:13px; color:var(--gray-400);">${u.numberId || '—'}</td>
+                  <td style="font-size:13px;">${u.mail || '—'}</td>
+                  <td><span class="badge ${rolClass}">${u.role || '—'}</span></td>
+                  <td>
+                    <div class="action-btns">
+                      <button class="btn-icon" title="Resetear contraseña" onclick="abrirReset('${u.numberId}', '${u.name}')">
+                        <i class="ti ti-key"></i>
+                      </button>
+                      <button class="btn-icon danger" title="Eliminar usuario" onclick="abrirEliminar('${u.numberId}', '${u.name}')">
+                        <i class="ti ti-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>`;
+            }).join('')}
+          </tbody>
+        </table>`;
+    }
+
+    // ── Modal reset ──
+    function abrirReset(numberId, name) {
+      usuarioActivo = { numberId, name };
+      document.getElementById('modal-reset-sub').textContent = `Usuario: ${name} (ID: ${numberId})`;
+      document.getElementById('modal-new-pass').value = '';
+      document.getElementById('alert-modal-reset').classList.remove('show');
+      document.getElementById('modal-reset').classList.add('open');
+    }
+
+    async function ejecutarReset() {
+      const newPassword = document.getElementById('modal-new-pass').value;
+      if (!newPassword) { showAlert('alert-modal-reset', 'Escribe la nueva contraseña.', 'error'); return; }
+      try {
+        await resetPassword(usuarioActivo.numberId, newPassword);
+        cerrarModal('modal-reset');
+        showAlert('alert-users', `Contraseña de ${usuarioActivo.name} reseteada exitosamente.`, 'success');
+      } catch (e) {
+        showAlert('alert-modal-reset', 'Error: ' + e.message, 'error');
+      }
+    }
+
+    // ── Modal eliminar ──
+    function abrirEliminar(numberId, name) {
+      usuarioActivo = { numberId, name };
+      document.getElementById('modal-delete-sub').textContent = `¿Eliminar a ${name} (ID: ${numberId})? Esta acción no se puede deshacer.`;
+      document.getElementById('alert-modal-delete').classList.remove('show');
+      document.getElementById('modal-delete').classList.add('open');
+    }
+
+    async function ejecutarEliminar() {
+      try {
+        await api(`/api/auth/delete/${usuarioActivo.numberId}`, { method: 'DELETE' });
+        cerrarModal('modal-delete');
+        showAlert('alert-users', `Usuario ${usuarioActivo.name} eliminado exitosamente.`, 'success');
+        cargarUsuarios();
+      } catch (e) {
+        showAlert('alert-modal-delete', 'Error: ' + e.message, 'error');
+      }
+    }
+
+    function cerrarModal(id) {
+      document.getElementById(id).classList.remove('open');
+    }
+
+    // Cerrar modal al hacer clic fuera
+    document.querySelectorAll('.modal-bg').forEach(bg => {
+      bg.addEventListener('click', e => { if (e.target === bg) bg.classList.remove('open'); });
+    });
+  </script>
+</body>
+</html>

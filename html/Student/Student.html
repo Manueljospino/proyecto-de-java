@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Estudiante · Asistencia</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <link rel="stylesheet" href="../styles.css" /></head>
+<body>
+
+  <nav class="navbar">
+    <div class="brand"><i class="ti ti-school"></i> Asistencia</div>
+    <div class="nav-user">
+      <span id="nav-user-name"></span>
+      <button class="btn-logout" onclick="logout()"><i class="ti ti-logout"></i> Salir</button>
+    </div>
+  </nav>
+
+  <main class="page">
+    <h1 class="page-title">Panel de Estudiante</h1>
+
+    <!-- Sesiones activas -->
+    <div class="card">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
+        <p class="section-title" style="margin:0;">Sesiones activas</p>
+        <button class="btn btn-secondary" onclick="cargarSesiones()">
+          <i class="ti ti-refresh"></i> Actualizar
+        </button>
+      </div>
+      <div id="alert-asistencia" class="alert"></div>
+      <div id="lista-sesiones">
+        <div class="empty"><i class="ti ti-loader"></i><p>Cargando sesiones...</p></div>
+      </div>
+    </div>
+
+    <!-- Mi historial de asistencia -->
+    <div class="card">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
+        <p class="section-title" style="margin:0;">Mi historial de asistencia</p>
+        <button class="btn btn-secondary" onclick="cargarHistorial()">
+          <i class="ti ti-refresh"></i> Actualizar
+        </button>
+      </div>
+      <div id="alert-historial" class="alert"></div>
+      <div id="historial-wrap">
+        <div class="empty"><i class="ti ti-loader"></i><p>Cargando historial...</p></div>
+      </div>
+    </div>
+
+    <!-- Mis materias inscritas -->
+    <div class="card">
+      <p class="section-title">Mis materias inscritas</p>
+      <div id="inscripciones-wrap">
+        <div class="empty"><i class="ti ti-loader"></i><p>Cargando...</p></div>
+      </div>
+    </div>
+
+    <!-- Cambiar contraseña -->
+    <div class="card">
+      <p class="section-title">Cambiar contraseña</p>
+      <div id="alert-cambiar-pass" class="alert"></div>
+      <div class="grid-2">
+        <div class="field">
+          <label for="cp-current">Contraseña actual</label>
+          <div style="position:relative;">
+            <input type="password" id="cp-current" placeholder="Tu contraseña actual" style="padding-right:42px;" />
+            <button type="button" onclick="togglePass('cp-current','cp-eye1')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--gray-400);font-size:17px;display:flex;align-items:center;">
+              <i class="ti ti-eye" id="cp-eye1"></i>
+            </button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="cp-new">Nueva contraseña</label>
+          <div style="position:relative;">
+            <input type="password" id="cp-new" placeholder="Mínimo 8 caracteres" style="padding-right:42px;" />
+            <button type="button" onclick="togglePass('cp-new','cp-eye2')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--gray-400);font-size:17px;display:flex;align-items:center;">
+              <i class="ti ti-eye" id="cp-eye2"></i>
+            </button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="cp-confirm">Confirmar nueva contraseña</label>
+          <div style="position:relative;">
+            <input type="password" id="cp-confirm" placeholder="Repite la nueva contraseña" style="padding-right:42px;" />
+            <button type="button" onclick="togglePass('cp-confirm','cp-eye3')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--gray-400);font-size:17px;display:flex;align-items:center;">
+              <i class="ti ti-eye" id="cp-eye3"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="cambiarContrasena()">
+        <i class="ti ti-lock"></i> Cambiar contraseña
+      </button>
+    </div>
+  </main>
+
+  <script src="../Conect.js"></script>
+  <script src="../sidebar.js"></script>
+  <script>
+    requireRole('ESTUDIANTE');
+    setNavUser();
+    buildSidebar('ESTUDIANTE', 'student');
+    cargarSesiones();
+    cargarHistorial();
+    cargarInscripciones();
+
+    async function cargarSesiones() {
+      var wrap = document.getElementById('lista-sesiones');
+      try {
+        var sesiones = await getActiveSessions();
+        if (!sesiones || !sesiones.length) {
+          wrap.innerHTML = '<div class="empty"><i class="ti ti-calendar-off"></i><p>No hay sesiones activas en este momento.</p></div>';
+          return;
+        }
+        wrap.innerHTML = sesiones.map(function(s) {
+          return '<div class="session-item">' +
+            '<div class="session-info">' +
+              '<div class="s-subject">' + (s.subject ? s.subject.name : '—') + '</div>' +
+              '<div class="s-teacher"><i class="ti ti-user" style="font-size:12px"></i> Docente: ' + (s.docente ? s.docente.name : '—') + '</div>' +
+            '</div>' +
+            '<button class="btn btn-primary" onclick="registrar(' + s.id + ')">' +
+              '<i class="ti ti-check"></i> Registrar asistencia' +
+            '</button>' +
+          '</div>';
+        }).join('');
+      } catch (e) {
+        wrap.innerHTML = '<div class="empty"><i class="ti ti-alert-circle"></i><p>' + e.message + '</p></div>';
+      }
+    }
+
+    async function registrar(sessionId) {
+      try {
+        await registerAssistance(sessionId);
+        showAlert('alert-asistencia', '¡Asistencia registrada exitosamente!', 'success');
+        cargarSesiones();
+        cargarHistorial();
+      } catch (e) {
+        showAlert('alert-asistencia', 'Error: ' + e.message, 'error');
+      }
+    }
+
+    async function cargarHistorial() {
+      var wrap = document.getElementById('historial-wrap');
+      try {
+        var data = await getMyAssistance();
+        if (!data || !data.length) {
+          wrap.innerHTML = '<div class="empty"><i class="ti ti-clipboard-off"></i><p>No tienes asistencias registradas aún.</p></div>';
+          return;
+        }
+        wrap.innerHTML = '<div class="table-wrap"><table>' +
+          '<thead><tr><th>Materia</th><th>Docente</th><th>Fecha</th><th>Estado</th></tr></thead>' +
+          '<tbody>' +
+          data.map(function(a) {
+            var materia = a.session && a.session.subject ? a.session.subject.name : '—';
+            var docente = a.teacher ? a.teacher.name : '—';
+            var estado  = a.state || 'Presente';
+            var badgeClass = estado === 'Presente' ? 'badge-green' : 'badge-red';
+            return '<tr>' +
+              '<td>' + materia + '</td>' +
+              '<td>' + docente + '</td>' +
+              '<td>' + (a.date ? new Date(a.date).toLocaleDateString('es-CO') : '—') + '</td>' +
+              '<td><span class="badge ' + badgeClass + '">' + estado + '</span></td>' +
+            '</tr>';
+          }).join('') +
+          '</tbody></table></div>';
+      } catch (e) {
+        wrap.innerHTML = '<div class="empty"><i class="ti ti-alert-circle"></i><p>' + e.message + '</p></div>';
+      }
+    }
+
+    async function cargarInscripciones() {
+      var wrap = document.getElementById('inscripciones-wrap');
+      try {
+        var data = await getMyInscriptions();
+        if (!data || !data.length) {
+          wrap.innerHTML = '<div class="empty"><i class="ti ti-book-off"></i><p>No tienes materias inscritas.</p></div>';
+          return;
+        }
+        wrap.innerHTML = data.map(function(i) {
+          return '<div class="session-item">' +
+            '<div class="session-info">' +
+              '<div class="s-subject"><i class="ti ti-book" style="color:var(--green-700);"></i> ' + (i.subject ? i.subject.name : '—') + '</div>' +
+              (i.subject && i.subject.description ? '<div class="s-teacher">' + i.subject.description + '</div>' : '') +
+            '</div>' +
+            '<span class="badge badge-green">Inscrito</span>' +
+          '</div>';
+        }).join('');
+      } catch (e) {
+        wrap.innerHTML = '<div class="empty"><i class="ti ti-alert-circle"></i><p>' + e.message + '</p></div>';
+      }
+    }
+
+    function togglePass(inputId, eyeId) {
+      const input = document.getElementById(inputId);
+      const eye   = document.getElementById(eyeId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        eye.className = 'ti ti-eye-off';
+      } else {
+        input.type = 'password';
+        eye.className = 'ti ti-eye';
+      }
+    }
+
+    async function cambiarContrasena() {
+      const current = document.getElementById('cp-current').value;
+      const newPass = document.getElementById('cp-new').value;
+      const confirm = document.getElementById('cp-confirm').value;
+      if (!current || !newPass || !confirm) { showAlert('alert-cambiar-pass', 'Completa todos los campos.', 'error'); return; }
+      if (newPass !== confirm) { showAlert('alert-cambiar-pass', 'Las contraseñas nuevas no coinciden.', 'error'); return; }
+      if (newPass.length < 8) { showAlert('alert-cambiar-pass', 'La contraseña debe tener mínimo 8 caracteres.', 'error'); return; }
+      try {
+        await changePassword(current, newPass);
+        showAlert('alert-cambiar-pass', 'Contraseña cambiada exitosamente.', 'success');
+        document.getElementById('cp-current').value = '';
+        document.getElementById('cp-new').value = '';
+        document.getElementById('cp-confirm').value = '';
+      } catch (e) {
+        showAlert('alert-cambiar-pass', 'Error: ' + e.message, 'error');
+      }
+    }
+  </script>
+</body>
+</html>

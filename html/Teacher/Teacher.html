@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Docente · Asistencia</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <link rel="stylesheet" href="../styles.css" /></head>
+<body>
+
+  <nav class="navbar">
+    <div class="brand"><i class="ti ti-school"></i> Asistencia</div>
+    <div class="nav-user">
+      <span id="nav-user-name"></span>
+      <button class="btn-logout" onclick="logout()"><i class="ti ti-logout"></i> Salir</button>
+    </div>
+  </nav>
+
+  <main class="page">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+      <h1 class="page-title" style="margin:0;">Panel de Docente</h1>
+
+    </div>
+
+    <!-- Mis materias asignadas -->
+    <div class="card" style="margin-bottom:1.5rem;">
+      <p class="section-title">Mis materias asignadas</p>
+      <div id="mis-materias">
+        <div class="empty"><i class="ti ti-loader"></i><p>Cargando...</p></div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <!-- Abrir sesión -->
+      <div class="card">
+        <p class="section-title">Abrir clase</p>
+        <div id="alert-open" class="alert"></div>
+        <div class="field">
+          <label for="subject-select">Materia</label>
+          <select id="subject-select">
+            <option value="">Cargando materias...</option>
+          </select>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="abrirSesion()">
+          <i class="ti ti-player-play"></i> Abrir sesión
+        </button>
+      </div>
+
+      <!-- Cerrar sesión -->
+      <div class="card">
+        <p class="section-title">Cerrar clase</p>
+        <div id="alert-close" class="alert"></div>
+        <div class="field">
+          <label for="sessionId">ID de sesión</label>
+          <input type="number" id="sessionId" placeholder="Ej: 3" />
+        </div>
+        <button class="btn btn-danger btn-full" onclick="cerrarSesion()">
+          <i class="ti ti-player-stop"></i> Cerrar sesión
+        </button>
+      </div>
+    </div>
+
+    <!-- Lista de asistidos por sesión -->
+    <div class="card">
+      <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1rem; flex-wrap:wrap;">
+        <p class="section-title" style="margin:0; flex:1;">Lista de asistidos</p>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <input type="number" id="sessionIdVer" placeholder="ID sesión" style="width:120px; height:36px; border:0.5px solid var(--gray-200); border-radius:var(--radius-md); padding:0 10px; font-family:'DM Sans',sans-serif; font-size:14px; outline:none;" />
+          <button class="btn btn-secondary" onclick="verAsistidos()">
+            <i class="ti ti-search"></i> Buscar
+          </button>
+        </div>
+      </div>
+      <div id="alert-lista" class="alert"></div>
+      <div id="lista-asistidos">
+        <div class="empty"><i class="ti ti-users"></i><p>Ingresa un ID de sesión para ver la lista.</p></div>
+      </div>
+    </div>
+
+    <!-- Cambiar contraseña -->
+    <div class="card">
+      <p class="section-title">Cambiar contraseña</p>
+      <div id="alert-cambiar-pass" class="alert"></div>
+      <div class="grid-2">
+        <div class="field">
+          <label for="cp-current">Contraseña actual</label>
+          <div style="position:relative;">
+            <input type="password" id="cp-current" placeholder="Tu contraseña actual" style="padding-right:42px;" />
+            <button type="button" onclick="togglePass('cp-current','cp-eye1')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--gray-400);font-size:17px;display:flex;align-items:center;">
+              <i class="ti ti-eye" id="cp-eye1"></i>
+            </button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="cp-new">Nueva contraseña</label>
+          <div style="position:relative;">
+            <input type="password" id="cp-new" placeholder="Mínimo 8 caracteres" style="padding-right:42px;" />
+            <button type="button" onclick="togglePass('cp-new','cp-eye2')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--gray-400);font-size:17px;display:flex;align-items:center;">
+              <i class="ti ti-eye" id="cp-eye2"></i>
+            </button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="cp-confirm">Confirmar nueva contraseña</label>
+          <div style="position:relative;">
+            <input type="password" id="cp-confirm" placeholder="Repite la nueva contraseña" style="padding-right:42px;" />
+            <button type="button" onclick="togglePass('cp-confirm','cp-eye3')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--gray-400);font-size:17px;display:flex;align-items:center;">
+              <i class="ti ti-eye" id="cp-eye3"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="cambiarContrasena()">
+        <i class="ti ti-lock"></i> Cambiar contraseña
+      </button>
+    </div>
+  </main>
+
+  <script src="../Conect.js"></script>
+  <script src="../sidebar.js"></script>
+  <script>
+    requireRole('DOCENTE');
+    setNavUser();
+    buildSidebar('DOCENTE', 'teacher');
+
+    // Cargar materias asignadas al docente
+    async function cargarMisArterias() {
+      try {
+        const data = await getMyTeacherSubjects();
+        const wrap = document.getElementById('mis-materias');
+        const select = document.getElementById('subject-select');
+
+        if (!data || !data.length) {
+          wrap.innerHTML = '<div class="empty"><i class="ti ti-book-off"></i><p>No tienes materias asignadas aún. Contacta al administrador.</p></div>';
+          select.innerHTML = '<option value="">Sin materias asignadas</option>';
+          return;
+        }
+
+        wrap.innerHTML = data.map(function(ts) {
+          return '<div class="session-item">' +
+            '<div class="session-info">' +
+              '<div class="s-subject"><i class="ti ti-book" style="color:var(--green-700);"></i> ' + ts.subject.name + '</div>' +
+              (ts.subject.description ? '<div class="s-teacher">' + ts.subject.description + '</div>' : '') +
+            '</div>' +
+            '<span class="badge badge-green">Asignada</span>' +
+          '</div>';
+        }).join('');
+
+        select.innerHTML = '<option value="">Selecciona una materia</option>' +
+          data.map(function(ts) {
+            return '<option value="' + ts.subject.id + '">' + ts.subject.name + '</option>';
+          }).join('');
+      } catch (e) {
+        document.getElementById('mis-materias').innerHTML =
+          '<div class="empty"><p>Error al cargar materias: ' + e.message + '</p></div>';
+      }
+    }
+
+    cargarMisArterias();
+
+    async function abrirSesion() {
+      const subjectId = document.getElementById('subject-select').value;
+      if (!subjectId) { showAlert('alert-open', 'Selecciona una materia.', 'error'); return; }
+      try {
+        const session = await openSession(subjectId);
+        showAlert('alert-open', 'Sesión abierta. ID: ' + session.id, 'success');
+        document.getElementById('subject-select').value = '';
+      } catch (e) {
+        showAlert('alert-open', 'Error: ' + e.message, 'error');
+      }
+    }
+
+    async function cerrarSesion() {
+      const id = document.getElementById('sessionId').value.trim();
+      if (!id) { showAlert('alert-close', 'Ingresa el ID de la sesión.', 'error'); return; }
+      try {
+        await closeSession(id);
+        showAlert('alert-close', 'Sesión cerrada exitosamente.', 'success');
+        document.getElementById('sessionId').value = '';
+      } catch (e) {
+        showAlert('alert-close', 'Error: ' + e.message, 'error');
+      }
+    }
+
+    async function verAsistidos() {
+      const id = document.getElementById('sessionIdVer').value.trim();
+      if (!id) { showAlert('alert-lista', 'Ingresa el ID de la sesión.', 'error'); return; }
+      const wrap = document.getElementById('lista-asistidos');
+      wrap.innerHTML = '<div class="empty"><i class="ti ti-loader"></i><p>Cargando...</p></div>';
+      try {
+        const data = await getSessionAssistance(id);
+        if (!data || !data.length) {
+          wrap.innerHTML = '<div class="empty"><i class="ti ti-user-off"></i><p>No hay asistidos en esta sesión aún.</p></div>';
+          return;
+        }
+        wrap.innerHTML = '<div class="table-wrap"><table>' +
+          '<thead><tr><th>#</th><th>ID Estudiante</th><th>Nombre</th><th>Estado</th><th>Fecha</th></tr></thead>' +
+          '<tbody>' +
+          data.map(function(a, i) {
+            return '<tr>' +
+              '<td>' + (i + 1) + '</td>' +
+              '<td>' + (a.student ? a.student.numberId : '—') + '</td>' +
+              '<td>' + (a.student ? a.student.name : '—') + '</td>' +
+              '<td><span class="badge ' + (a.state === 'Presente' ? 'badge-green' : 'badge-red') + '">' + (a.state || '—') + '</span></td>' +
+              '<td>' + (a.date ? new Date(a.date).toLocaleDateString('es-CO') : '—') + '</td>' +
+            '</tr>';
+          }).join('') +
+          '</tbody></table></div>';
+      } catch (e) {
+        wrap.innerHTML = '<div class="empty"><i class="ti ti-alert-circle"></i><p>' + e.message + '</p></div>';
+      }
+    }
+
+    function togglePass(inputId, eyeId) {
+      const input = document.getElementById(inputId);
+      const eye   = document.getElementById(eyeId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        eye.className = 'ti ti-eye-off';
+      } else {
+        input.type = 'password';
+        eye.className = 'ti ti-eye';
+      }
+    }
+
+    async function cambiarContrasena() {
+      const current = document.getElementById('cp-current').value;
+      const newPass = document.getElementById('cp-new').value;
+      const confirm = document.getElementById('cp-confirm').value;
+      if (!current || !newPass || !confirm) { showAlert('alert-cambiar-pass', 'Completa todos los campos.', 'error'); return; }
+      if (newPass !== confirm) { showAlert('alert-cambiar-pass', 'Las contraseñas nuevas no coinciden.', 'error'); return; }
+      if (newPass.length < 8) { showAlert('alert-cambiar-pass', 'La contraseña debe tener mínimo 8 caracteres.', 'error'); return; }
+      try {
+        await changePassword(current, newPass);
+        showAlert('alert-cambiar-pass', 'Contraseña cambiada exitosamente.', 'success');
+        document.getElementById('cp-current').value = '';
+        document.getElementById('cp-new').value = '';
+        document.getElementById('cp-confirm').value = '';
+      } catch (e) {
+        showAlert('alert-cambiar-pass', 'Error: ' + e.message, 'error');
+      }
+    }
+  </script>
+</body>
+</html>

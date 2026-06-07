@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mis Clases · Asistencia</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <link rel="stylesheet" href="../styles.css" />  <style>
+    .session-card {
+      background: var(--white);
+      border: 0.5px solid var(--gray-200);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1rem;
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow 0.15s;
+    }
+    .session-card:hover { box-shadow: var(--shadow-md); }
+    .session-card.open { border-left: 3px solid var(--green-600); }
+    .session-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+    .session-meta { display: flex; align-items: center; gap: 12px; }
+    .session-icon { width: 44px; height: 44px; border-radius: var(--radius-md); background: var(--green-50); border: 0.5px solid var(--green-200); display: flex; align-items: center; justify-content: center; color: var(--green-700); font-size: 20px; flex-shrink: 0; }
+    .session-subject { font-weight: 600; font-size: 16px; margin: 0; }
+    .session-id { font-size: 12px; color: var(--gray-400); margin: 3px 0 0; }
+    .session-actions { display: flex; gap: 8px; }
+    .attendees-wrap { margin-top: 1rem; border-top: 0.5px solid var(--gray-100); padding-top: 1rem; display: none; }
+    .attendees-wrap.show { display: block; }
+    .attendee-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 0.5px solid var(--gray-100); }
+    .attendee-row:last-child { border-bottom: none; }
+    .avatar-xs { width: 30px; height: 30px; border-radius: 50%; background: var(--green-50); border: 0.5px solid var(--green-200); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: var(--green-700); flex-shrink: 0; }
+    .empty-sm { text-align: center; padding: 1.5rem; color: var(--gray-400); font-size: 13px; }
+    .count-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--green-700); background: var(--green-50); border: 0.5px solid var(--green-200); border-radius: 20px; padding: 2px 10px; }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="brand"><i class="ti ti-school"></i> Asistencia</div>
+    <div class="nav-user">
+      <a href="Teacher.html" class="btn-logout" style="display:flex; align-items:center; gap:6px; text-decoration:none;">
+        <i class="ti ti-arrow-left"></i> Panel docente
+      </a>
+      <span id="nav-user-name"></span>
+      <button class="btn-logout" onclick="logout()"><i class="ti ti-logout"></i> Salir</button>
+    </div>
+  </nav>
+
+  <main class="page">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+      <h1 class="page-title" style="margin:0;">Mis clases abiertas</h1>
+      <button class="btn btn-secondary" onclick="cargarSesiones()">
+        <i class="ti ti-refresh"></i> Actualizar
+      </button>
+    </div>
+
+    <div id="alert-sesiones" class="alert"></div>
+    <div id="sesiones-wrap">
+      <div class="empty"><i class="ti ti-loader"></i><p>Cargando sesiones...</p></div>
+    </div>
+  </main>
+
+  <!-- Modal confirmar cierre -->
+  <div class="modal-bg" id="modal-cerrar">
+    <div class="modal" style="max-width:340px;">
+      <h3 style="color:var(--red-700);"><i class="ti ti-player-stop"></i> Cerrar clase</h3>
+      <p id="modal-cerrar-sub">¿Estás seguro de cerrar esta sesión? Los estudiantes ya no podrán registrar asistencia.</p>
+      <div id="alert-modal-cerrar" class="alert"></div>
+      <div class="modal-btns">
+        <button class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button>
+        <button class="btn btn-danger" onclick="ejecutarCierre()"><i class="ti ti-player-stop"></i> Sí, cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../Conect.js"></script>
+  <script src="../sidebar.js"></script>
+  <script>
+    requireRole('DOCENTE');
+    setNavUser();
+    buildSidebar('DOCENTE', 'sessions');
+    cargarSesiones();
+
+    let sesionActivaId = null;
+    let sesionesData = [];
+
+    async function cargarSesiones() {
+      const wrap = document.getElementById('sesiones-wrap');
+      wrap.innerHTML = '<div class="empty"><i class="ti ti-loader"></i><p>Cargando...</p></div>';
+      try {
+        const rawData = await api('/api/assistance/my-sessions');
+        sesionesData = rawData.filter(s => s.activa);
+        const data = sesionesData;
+        if (!data || data.length === 0) {
+          wrap.innerHTML = '<div class="empty"><i class="ti ti-calendar-off"></i><p>No tienes clases abiertas en este momento.</p></div>';
+          return;
+        }
+        wrap.innerHTML = data.map(s => `
+          <div class="session-card open" id="card-${s.id}">
+            <div class="session-header">
+              <div class="session-meta">
+                <div class="session-icon"><i class="ti ti-book"></i></div>
+                <div>
+                  <p class="session-subject">${s.subject?.name || 'Sin nombre'}</p>
+                  <p class="session-id">ID de sesión: ${s.id} &nbsp;·&nbsp; <span class="badge badge-green"><i class="ti ti-circle-filled" style="font-size:8px;"></i> Abierta</span></p>
+                </div>
+              </div>
+              <div class="session-actions">
+                <button class="btn btn-secondary" onclick="toggleAsistidos(${s.id})">
+                  <i class="ti ti-users" id="icon-toggle-${s.id}"></i> Ver asistidos
+                </button>
+                <button class="btn btn-danger" onclick="abrirModalCierre(${s.id}, '${s.subject?.name || ""}')">
+                  <i class="ti ti-player-stop"></i> Cerrar clase
+                </button>
+              </div>
+            </div>
+            <div class="attendees-wrap" id="asistidos-${s.id}">
+              <div class="empty-sm"><i class="ti ti-loader"></i> Cargando asistidos...</div>
+            </div>
+          </div>
+        `).join('');
+      } catch (e) {
+        wrap.innerHTML = `<div class="empty"><i class="ti ti-alert-circle"></i><p>${e.message}</p></div>`;
+      }
+    }
+
+    async function toggleAsistidos(sessionId) {
+      const wrap = document.getElementById(`asistidos-${sessionId}`);
+      const isOpen = wrap.classList.contains('show');
+
+      if (isOpen) {
+        wrap.classList.remove('show');
+        return;
+      }
+
+      wrap.classList.add('show');
+      wrap.innerHTML = '<div class="empty-sm"><i class="ti ti-loader"></i> Cargando...</div>';
+
+      try {
+        const data = await getSessionAssistance(sessionId);
+        if (!data || data.length === 0) {
+          wrap.innerHTML = '<div class="empty-sm"><i class="ti ti-user-off"></i> Ningún estudiante ha registrado asistencia aún.</div>';
+          return;
+        }
+        wrap.innerHTML = `
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:0.75rem;">
+            <span class="count-badge"><i class="ti ti-users"></i> ${data.length} asistido${data.length !== 1 ? 's' : ''}</span>
+          </div>
+          ${data.map(a => {
+            const initials = (a.student?.name || '?').split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase();
+            return `
+              <div class="attendee-row">
+                <div class="avatar-xs">${initials}</div>
+                <div>
+                  <p style="margin:0; font-size:14px; font-weight:500;">${a.student?.name || '—'}</p>
+                  <p style="margin:0; font-size:12px; color:var(--gray-400);">ID: ${a.student?.numberId || '—'}</p>
+                </div>
+                <span class="badge badge-green" style="margin-left:auto;"><i class="ti ti-check"></i> Presente</span>
+              </div>`;
+          }).join('')}`;
+      } catch (e) {
+        wrap.innerHTML = `<div class="empty-sm" style="color:var(--red-700);">${e.message}</div>`;
+      }
+    }
+
+    function abrirModalCierre(sessionId, subject) {
+      sesionActivaId = sessionId;
+      document.getElementById('modal-cerrar-sub').textContent = `¿Cerrar la clase "${subject}"? Los estudiantes ya no podrán registrar asistencia.`;
+      document.getElementById('alert-modal-cerrar').classList.remove('show');
+      document.getElementById('modal-cerrar').classList.add('open');
+    }
+
+    async function ejecutarCierre() {
+      try {
+        await closeSession(sesionActivaId);
+        cerrarModal();
+        showAlert('alert-sesiones', 'Clase cerrada exitosamente.', 'success');
+        // Quitar la card de la sesión cerrada
+        const card = document.getElementById(`card-${sesionActivaId}`);
+        if (card) card.remove();
+        // Si no quedan sesiones mostrar empty state
+        if (document.querySelectorAll('.session-card').length === 0) {
+          document.getElementById('sesiones-wrap').innerHTML =
+            '<div class="empty"><i class="ti ti-calendar-off"></i><p>No tienes clases abiertas en este momento.</p></div>';
+        }
+      } catch (e) {
+        showAlert('alert-modal-cerrar', 'Error: ' + e.message, 'error');
+      }
+    }
+
+    function cerrarModal() {
+      document.getElementById('modal-cerrar').classList.remove('open');
+    }
+
+    document.getElementById('modal-cerrar').addEventListener('click', e => {
+      if (e.target === document.getElementById('modal-cerrar')) cerrarModal();
+    });
+  </script>
+</body>
+</html>
