@@ -6,14 +6,14 @@ const SIDEBAR_CONFIG = {
       {
         label: 'Principal',
         items: [
-          { icon: 'ti-layout-dashboard', label: 'Panel de Admin', href: 'Admin.html', page: 'admin' },
+          { icon: 'ti-layout-dashboard', label: 'Panel de Admin', href: 'SubAdmin.html', page: 'admin' },
           { icon: 'ti-users', label: 'Ver todos los usuarios', href: 'Users.html', page: 'users' },
         ]
       },
       {
         label: 'Usuarios',
         items: [
-          { icon: 'ti-user-plus', label: 'Registrar usuario', action: () => goToPageAndScroll('Admin.html', 'r-name') },
+          { icon: 'ti-user-plus', label: 'Registrar usuario', action: () => goToPageAndScroll('SubAdmin.html', 'r-name') },
           { icon: 'ti-link', label: 'Inscribir estudiante', action: () => goToPageAndScroll('Admin.html', 'i-student') },
           { icon: 'ti-key', label: 'Resetear contraseña', action: () => goToPageAndScroll('Admin.html', 'rp-id') },
           { icon: 'ti-trash', label: 'Eliminar usuario', action: () => goToPageAndScroll('Admin.html', 'd-id') },
@@ -42,31 +42,31 @@ const SIDEBAR_CONFIG = {
       {
         label: 'Principal',
         items: [
-          { icon: 'ti-layout-dashboard', label: 'Panel de Admin', href: 'Admin.html', page: 'admin' },
+          { icon: 'ti-layout-dashboard', label: 'Panel de Admin', href: 'SubAdmin.html', page: 'admin' },
           { icon: 'ti-users', label: 'Ver todos los usuarios', href: 'Users.html', page: 'users' },
         ]
       },
       {
         label: 'Usuarios',
         items: [
-          { icon: 'ti-user-plus', label: 'Registrar usuario', action: () => goToPageAndScroll('Admin.html', 'r-name') },
-          { icon: 'ti-link', label: 'Inscribir estudiante', action: () => goToPageAndScroll('Admin.html', 'i-student') },
-          { icon: 'ti-key', label: 'Resetear contraseña', action: () => goToPageAndScroll('Admin.html', 'rp-id') },
+          { icon: 'ti-user-plus', label: 'Registrar usuario', action: () => goToPageAndScroll('SubAdmin.html', 'r-name') },
+          { icon: 'ti-link', label: 'Inscribir estudiante', action: () => goToPageAndScroll('SubAdmin.html', 'i-student') },
+          { icon: 'ti-key', label: 'Resetear contraseña', action: () => goToPageAndScroll('SubAdmin.html', 'rp-id') },
         ]
       },
       {
         label: 'Materias',
         items: [
-          { icon: 'ti-circle-plus', label: 'Agregar materia', action: () => goToPageAndScroll('Admin.html', 'mat-name') },
-          { icon: 'ti-pencil', label: 'Editar materia', action: () => goToPageAndScroll('Admin.html', 'mat-edit-select') },
-          { icon: 'ti-books', label: 'Materias y docentes', action: () => goToPageAndScroll('Admin.html', 'lista-materias-docentes') },
+          { icon: 'ti-circle-plus', label: 'Agregar materia', action: () => goToPageAndScroll('SubAdmin.html', 'mat-name') },
+          { icon: 'ti-pencil', label: 'Editar materia', action: () => goToPageAndScroll('SubAdmin.html', 'mat-edit-select') },
+          { icon: 'ti-books', label: 'Materias y docentes', action: () => goToPageAndScroll('SubAdmin.html', 'lista-materias-docentes') },
         ]
       },
       {
         label: 'Docentes',
         items: [
-          { icon: 'ti-plus', label: 'Asignar materia a docente', action: () => goToPageAndScroll('Admin.html', 'assign-teacher') },
-          { icon: 'ti-search', label: 'Ver materias de docente', action: () => goToPageAndScroll('Admin.html', 'ver-teacher-id') },
+          { icon: 'ti-plus', label: 'Asignar materia a docente', action: () => goToPageAndScroll('SubAdmin.html', 'assign-teacher') },
+          { icon: 'ti-search', label: 'Ver materias de docente', action: () => goToPageAndScroll('SubAdmin.html', 'ver-teacher-id') },
         ]
       },
     ]

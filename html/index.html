@@ -53,6 +53,11 @@
         <i class="ti ti-login"></i> Iniciar sesión
       </button>
 
+      <div class="roles-row">
+        <span class="role-pill"><i class="ti ti-shield"></i> Admin</span>
+        <span class="role-pill"><i class="ti ti-chalkboard"></i> Docente</span>
+        <span class="role-pill"><i class="ti ti-user"></i> Estudiante</span>
+      </div>
     </div>
   </div>
 
@@ -60,7 +65,8 @@
   <script>
     // Si ya está logueado, redirigir
     const role = getRole();
-    if (role === 'ADMIN')      location.href = 'Admin/Admin.html';
+    if (role === 'ADMIN')         location.href = 'Admin/Admin.html';
+    else if (role === 'SUBADMIN')   location.href = 'Admin/SubAdmin.html';
     else if (role === 'DOCENTE')    location.href = 'Teacher/Teacher.html';
     else if (role === 'ESTUDIANTE') location.href = 'Student/Student.html';
 
@@ -96,7 +102,8 @@
         const role = getRole();
         showAlert('alert-login', '¡Acceso concedido! Redirigiendo...', 'success');
         setTimeout(() => {
-          if (role === 'ADMIN')           location.href = 'Admin/Admin.html';
+          if (role === 'ADMIN')         location.href = 'Admin/Admin.html';
+          else if (role === 'SUBADMIN')   location.href = 'Admin/SubAdmin.html';
           else if (role === 'DOCENTE')    location.href = 'Teacher/Teacher.html';
           else                            location.href = 'Student/Student.html';
         }, 800);
