@@ -1,4 +1,4 @@
-const BASE = 'http://localhost:8080';
+const BASE = 'https://pleasing-insight-production-a7e7.up.railway.app';
 
 // ── Auth ──────────────────────────────────────────────
 async function login(numberId, password) {
