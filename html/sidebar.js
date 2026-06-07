@@ -22,7 +22,7 @@ const SIDEBAR_CONFIG = {
       {
         label: 'Materias',
         items: [
-          { icon: 'ti-book-plus', label: 'Agregar materia', action: () => goToPageAndScroll('Admin.html', 'mat-name') },
+          { icon: 'ti-plus', label: 'Agregar materia', action: () => goToPageAndScroll('Admin.html', 'mat-name') },
           { icon: 'ti-pencil', label: 'Editar materia', action: () => goToPageAndScroll('Admin.html', 'mat-edit-select') },
           { icon: 'ti-book-off', label: 'Eliminar materia', action: () => goToPageAndScroll('Admin.html', 'lista-materias') },
           { icon: 'ti-books', label: 'Materias y docentes', action: () => goToPageAndScroll('Admin.html', 'lista-materias-docentes') },
