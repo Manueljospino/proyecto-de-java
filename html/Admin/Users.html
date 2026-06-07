@@ -57,6 +57,7 @@
       <div class="stat-card"><div class="stat-label">Estudiantes</div><div class="stat-num" id="stat-est">—</div></div>
       <div class="stat-card"><div class="stat-label">Docentes</div><div class="stat-num" id="stat-doc">—</div></div>
       <div class="stat-card"><div class="stat-label">Admins</div><div class="stat-num" id="stat-adm">—</div></div>
+      <div class="stat-card"><div class="stat-label">Sub-admins</div><div class="stat-num" id="stat-sub">—</div></div>
     </div>
 
     <div class="card">
@@ -70,6 +71,7 @@
           <option value="ESTUDIANTE">Estudiante</option>
           <option value="DOCENTE">Docente</option>
           <option value="ADMIN">Admin</option>
+          <option value="SUBADMIN">Sub-admin</option>
         </select>
         <button class="btn btn-secondary" onclick="cargarUsuarios()">
           <i class="ti ti-refresh"></i> Actualizar
@@ -146,6 +148,7 @@
       document.getElementById('stat-est').textContent = data.filter(u => u.role === 'ESTUDIANTE').length;
       document.getElementById('stat-doc').textContent = data.filter(u => u.role === 'DOCENTE').length;
       document.getElementById('stat-adm').textContent = data.filter(u => u.role === 'ADMIN').length;
+      document.getElementById('stat-sub').textContent = data.filter(u => u.role === 'SUBADMIN').length;
     }
 
     function filtrar() {
@@ -179,7 +182,7 @@
           <tbody>
             ${usuarios.map(u => {
               const initials = (u.name || '?').split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase();
-              const rolClass = u.role === 'ESTUDIANTE' ? 'badge-green' : u.role === 'DOCENTE' ? 'badge-gray' : 'badge-red';
+              const rolClass = u.role === 'ESTUDIANTE' ? 'badge-green' : u.role === 'DOCENTE' ? 'badge-gray' : u.role === 'SUBADMIN' ? 'badge-blue' : 'badge-red';
               return `
                 <tr>
                   <td>

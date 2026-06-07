@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sub-Admin · Asistencia</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <link rel="stylesheet" href="../styles.css" /></head>
+<body>
+
+  <nav class="navbar">
+    <div class="brand"><i class="ti ti-school"></i> Asistencia</div>
+    <div class="nav-user">
+      <span id="nav-user-name"></span>
+      <button class="btn-logout" onclick="logout()"><i class="ti ti-logout"></i> Salir</button>
+    </div>
+  </nav>
+
+  <main class="page">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+      <h1 class="page-title" style="margin:0;">Panel de Sub-Administrador</h1>
+      <a href="Users.html" class="btn btn-secondary">
+        <i class="ti ti-users"></i> Ver todos los usuarios
+      </a>
+    </div>
+
+    <!-- Registrar usuario -->
+    <div class="card">
+      <p class="section-title">Registrar nuevo usuario</p>
+      <div id="alert-register" class="alert"></div>
+      <div class="grid-2">
+        <div class="field">
+          <label for="r-name">Nombre completo</label>
+          <input type="text" id="r-name" placeholder="Ej: Carlos Pérez" />
+        </div>
+        <div class="field">
+          <label for="r-id">Número de ID</label>
+          <input type="text" id="r-id" placeholder="Ej: 1005123456" />
+        </div>
+        <div class="field">
+          <label for="r-mail">Correo electrónico</label>
+          <input type="email" id="r-mail" placeholder="correo@universidad.edu" />
+        </div>
+        <div class="field">
+          <label for="r-password">Contraseña</label>
+          <div style="position:relative;">
+            <input type="password" id="r-password" placeholder="Mínimo 8 caracteres" style="padding-right:42px;" />
+            <button type="button" onclick="togglePass('r-password','r-eye')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--gray-400);font-size:17px;display:flex;align-items:center;">
+              <i class="ti ti-eye" id="r-eye"></i>
+            </button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="r-role">Rol</label>
+          <select id="r-role">
+            <option value="">Selecciona un rol</option>
+            <option value="ESTUDIANTE">Estudiante</option>
+            <option value="DOCENTE">Docente</option>
+            <option value="SUBADMIN">Sub-administrador</option>
+          </select>
+        </div>
+        <div class="field" id="wrap-semester">
+          <label for="r-semester">Semestre (solo estudiantes)</label>
+          <input type="text" id="r-semester" placeholder="Ej: 3" />
+        </div>
+        <div class="field" id="wrap-program">
+          <label for="r-program">Programa académico</label>
+          <input type="text" id="r-program" placeholder="Ej: Ingeniería de Sistemas" />
+        </div>
+        <div class="field" id="wrap-subject">
+          <label for="r-subject">Materia (solo docentes)</label>
+          <input type="text" id="r-subject" placeholder="Ej: Cálculo I" />
+        </div>
+        <div class="field" id="wrap-department">
+          <label for="r-department">Departamento (solo docentes)</label>
+          <input type="text" id="r-department" placeholder="Ej: Ciencias Básicas" />
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="registrarUsuario()">
+        <i class="ti ti-user-plus"></i> Registrar usuario
+      </button>
+    </div>
+
+    <div class="grid-2">
+      <!-- Inscribir estudiante -->
+      <div class="card">
+        <p class="section-title">Inscribir estudiante a materia</p>
+        <div id="alert-inscribe" class="alert"></div>
+        <div class="field">
+          <label for="i-student">ID del estudiante</label>
+          <input type="text" id="i-student" placeholder="Ej: 1005123456" />
+        </div>
+        <div class="field">
+          <label for="i-subject">Materia</label>
+          <select id="i-subject">
+            <option value="">Cargando materias...</option>
+          </select>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="inscribir()">
+          <i class="ti ti-link"></i> Inscribir
+        </button>
+      </div>
+
+      <!-- Resetear contraseña -->
+      <div class="card">
+        <p class="section-title">Resetear contraseña</p>
+        <div id="alert-reset" class="alert"></div>
+        <div class="field">
+          <label for="rp-id">ID del usuario</label>
+          <input type="text" id="rp-id" placeholder="Ej: 1005123456" />
+        </div>
+        <div class="field">
+          <label for="rp-pass">Nueva contraseña</label>
+          <div style="position:relative;">
+            <input type="password" id="rp-pass" placeholder="Nueva contraseña" style="padding-right:42px;" />
+            <button type="button" onclick="togglePass('rp-pass','rp-eye')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--gray-400);font-size:17px;display:flex;align-items:center;">
+              <i class="ti ti-eye" id="rp-eye"></i>
+            </button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="rp-pass2">Confirmar contraseña</label>
+          <div style="position:relative;">
+            <input type="password" id="rp-pass2" placeholder="Repite la contraseña" style="padding-right:42px;" />
+            <button type="button" onclick="togglePass('rp-pass2','rp-eye2')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--gray-400);font-size:17px;display:flex;align-items:center;">
+              <i class="ti ti-eye" id="rp-eye2"></i>
+            </button>
+          </div>
+        </div>
+        <button class="btn btn-danger btn-full" onclick="resetPass()">
+          <i class="ti ti-key"></i> Resetear contraseña
+        </button>
+      </div>
+    </div>
+
+
+    <!-- ── Asignación Docente-Materia ── -->
+    <hr class="divider" />
+    <h2 class="page-title" style="font-size:18px; margin-bottom:1rem;">Asignación Docente → Materia</h2>
+
+    <div class="grid-2">
+      <div class="card">
+        <p class="section-title">Asignar materia a docente</p>
+        <div id="alert-assign" class="alert"></div>
+        <div class="field">
+          <label for="assign-teacher">ID del docente</label>
+          <input type="text" id="assign-teacher" placeholder="Ej: 9876543210" />
+        </div>
+        <div class="field">
+          <label for="assign-subject">Materia</label>
+          <select id="assign-subject">
+            <option value="">Cargando materias...</option>
+          </select>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="asignarMateria()">
+          <i class="ti ti-plus"></i> Asignar
+        </button>
+      </div>
+
+      <div class="card">
+        <p class="section-title">Ver materias de un docente</p>
+        <div id="alert-ver-docente" class="alert"></div>
+        <div style="display:flex; gap:8px; align-items:flex-end; margin-bottom:1rem;">
+          <div class="field" style="flex:1; margin:0;">
+            <label for="ver-teacher-id">ID del docente</label>
+            <input type="text" id="ver-teacher-id" placeholder="Ej: 9876543210" onkeydown="if(event.key==='Enter') verMateriasDocente()" />
+          </div>
+          <button class="btn btn-secondary" style="height:42px;" onclick="verMateriasDocente()">
+            <i class="ti ti-search"></i>
+          </button>
+        </div>
+        <div id="materias-docente-wrap">
+          <div class="empty"><p>Busca un docente para ver sus materias.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Gestión de Materias ── -->
+    <hr class="divider" />
+    <h2 class="page-title" style="font-size:18px; margin-bottom:1rem;">Gestión de Materias</h2>
+
+    <div class="grid-2">
+      <!-- Crear materia -->
+      <div class="card">
+        <p class="section-title">Agregar materia</p>
+        <div id="alert-materia-crear" class="alert"></div>
+        <div class="field">
+          <label for="mat-name">Nombre</label>
+          <input type="text" id="mat-name" placeholder="Ej: Cálculo Diferencial" />
+        </div>
+        <div class="field">
+          <label for="mat-desc">Descripción (opcional)</label>
+          <input type="text" id="mat-desc" placeholder="Ej: Primer semestre" />
+        </div>
+        <button class="btn btn-primary btn-full" onclick="crearMateria()">
+          <i class="ti ti-plus"></i> Agregar materia
+        </button>
+      </div>
+
+      <!-- Editar materia -->
+      <div class="card">
+        <p class="section-title">Editar materia</p>
+        <div id="alert-materia-editar" class="alert"></div>
+        <div class="field">
+          <label for="mat-edit-select">Materia</label>
+          <select id="mat-edit-select" onchange="cargarDatosEdicion()">
+            <option value="">Selecciona una materia</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="mat-edit-name">Nuevo nombre</label>
+          <input type="text" id="mat-edit-name" placeholder="Nombre" />
+        </div>
+        <div class="field">
+          <label for="mat-edit-desc">Nueva descripción</label>
+          <input type="text" id="mat-edit-desc" placeholder="Descripción" />
+        </div>
+        <button class="btn btn-secondary btn-full" onclick="editarMateria()">
+          <i class="ti ti-pencil"></i> Guardar cambios
+        </button>
+      </div>
+    </div>
+
+
+    <!-- Materias con docentes -->
+    <div class="card">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; flex-wrap:wrap; gap:1rem;">
+        <p class="section-title" style="margin:0;">Materias y sus docentes</p>
+        <button class="btn btn-secondary" onclick="cargarMateriasConDocentes()"><i class="ti ti-refresh"></i> Actualizar</button>
+      </div>
+      <div id="lista-materias-docentes">
+        <div class="empty"><i class="ti ti-loader"></i><p>Cargando...</p></div>
+      </div>
+    </div>
+
+  
+  <!-- Modal confirmación resetear contraseña -->
+  <div class="modal-bg" id="modal-reset-bg">
+    <div class="modal">
+      <h3><i class="ti ti-alert-triangle" style="color:var(--red-700);"></i> Confirmar cambio</h3>
+      <p>Estás a punto de cambiar la contraseña del usuario <strong id="modal-reset-name">—</strong>. Esta acción no se puede deshacer.</p>
+      <div class="modal-btns">
+        <button class="btn btn-secondary" onclick="cerrarModalReset()">Cancelar</button>
+        <button class="btn btn-danger" onclick="confirmarReset()"><i class="ti ti-key"></i> Sí, cambiar contraseña</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+  <script src="../Conect.js"></script>
+  <script src="../sidebar.js"></script>
+  <script>
+    const __payload = (() => { try { const t = localStorage.getItem('jwt'); if (!t) return null; const b = t.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'); return JSON.parse(decodeURIComponent(atob(b).split('').map(c=>'%'+('00'+c.charCodeAt(0).toString(16)).slice(-2)).join(''))); } catch(e){return null;} })();
+    if (!__payload || __payload.role !== 'SUBADMIN') { location.href = '../index.html'; }
+    setNavUser();
+    buildSidebar('SUBADMIN', 'admin');
+
+    // ── Usuarios ──
+    async function registrarUsuario() {
+      const data = {
+        name:       document.getElementById('r-name').value.trim(),
+        numberId:   document.getElementById('r-id').value.trim(),
+        mail:       document.getElementById('r-mail').value.trim(),
+        password:   document.getElementById('r-password').value,
+        role:       document.getElementById('r-role').value,
+        semester:   document.getElementById('r-semester').value.trim(),
+        program:    document.getElementById('r-program').value.trim(),
+        subject:    document.getElementById('r-subject').value.trim(),
+        department: document.getElementById('r-department').value.trim(),
+      };
+      if (!data.name || !data.numberId || !data.mail || !data.password || !data.role) {
+        showAlert('alert-register', 'Completa los campos obligatorios.', 'error'); return;
+      }
+      try {
+        await registerUser(data);
+        showAlert('alert-register', 'Usuario registrado exitosamente.', 'success');
+        ['r-name','r-id','r-mail','r-password','r-semester','r-program','r-subject','r-department'].forEach(id => document.getElementById(id).value = '');
+        document.getElementById('r-role').value = '';
+      } catch (e) {
+        showAlert('alert-register', 'Error: ' + e.message, 'error');
+      }
+    }
+
+    async function inscribir() {
+      var studentNumberId = document.getElementById('i-student').value.trim();
+      var subjectId = document.getElementById('i-subject').value;
+      if (!studentNumberId || !subjectId) { showAlert('alert-inscribe', 'Completa ambos campos.', 'error'); return; }
+      try {
+        await inscribeStudent(studentNumberId, subjectId);
+        showAlert('alert-inscribe', 'Estudiante inscrito exitosamente.', 'success');
+        document.getElementById('i-student').value = '';
+        document.getElementById('i-subject').value = '';
+      } catch (e) {
+        showAlert('alert-inscribe', 'Error: ' + e.message, 'error');
+      }
+    }
+
+    let usuarioEncontrado = null;
+
+    async function buscarUsuario() {
+      const numberId = document.getElementById('d-id').value.trim();
+      if (!numberId) { showAlert('alert-delete', 'Ingresa un ID para buscar.', 'error'); return; }
+      document.getElementById('user-found').style.display = 'none';
+      usuarioEncontrado = null;
+      try {
+        const persona = await api('/api/auth/find/' + numberId);
+        usuarioEncontrado = persona;
+        const initials = (persona.name || '?').split(' ').map(function(w){ return w[0]; }).join('').substring(0,2).toUpperCase();
+        document.getElementById('user-avatar').textContent = initials;
+        document.getElementById('user-name').textContent = persona.name || '—';
+        document.getElementById('user-mail').textContent = persona.mail || '—';
+        const roleBadge = document.getElementById('user-role');
+        roleBadge.textContent = persona.role || '—';
+        roleBadge.className = 'badge ' + (persona.role === 'ESTUDIANTE' ? 'badge-green' : persona.role === 'DOCENTE' ? 'badge-gray' : 'badge-red');
+        document.getElementById('user-id-badge').textContent = 'ID: ' + numberId;
+        document.getElementById('user-found').style.display = 'block';
+      } catch (e) {
+        showAlert('alert-delete', 'Usuario no encontrado: ' + e.message, 'error');
+      }
+    }
+
+    async function confirmarEliminar() {
+      if (!usuarioEncontrado) return;
+      const numberId = document.getElementById('d-id').value.trim();
+      if (!confirm('¿Eliminar a ' + usuarioEncontrado.name + ' (ID: ' + numberId + ')?\nEsta acción no se puede deshacer.')) return;
+      try {
+        await api('/api/auth/delete/' + numberId, { method: 'DELETE' });
+        showAlert('alert-delete', 'Usuario ' + usuarioEncontrado.name + ' eliminado exitosamente.', 'success');
+        document.getElementById('d-id').value = '';
+        document.getElementById('user-found').style.display = 'none';
+        usuarioEncontrado = null;
+      } catch (e) {
+        showAlert('alert-delete', 'Error: ' + e.message, 'error');
+      }
+    }
+
+    function togglePass(inputId, eyeId) {
+      const input = document.getElementById(inputId);
+      const eye   = document.getElementById(eyeId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        eye.className = 'ti ti-eye-off';
+      } else {
+        input.type = 'password';
+        eye.className = 'ti ti-eye';
+      }
+    }
+
+    function resetPass() {
+      const numberId    = document.getElementById('rp-id').value.trim();
+      const newPassword = document.getElementById('rp-pass').value;
+      const confirm     = document.getElementById('rp-pass2').value;
+      if (!numberId || !newPassword || !confirm) { showAlert('alert-reset', 'Completa todos los campos.', 'error'); return; }
+      if (newPassword !== confirm) { showAlert('alert-reset', 'Las contraseñas no coinciden.', 'error'); return; }
+      if (newPassword.length < 8) { showAlert('alert-reset', 'La contraseña debe tener mínimo 8 caracteres.', 'error'); return; }
+      // Mostrar modal de confirmación
+      document.getElementById('modal-reset-name').textContent = 'ID: ' + numberId;
+      document.getElementById('modal-reset-bg').classList.add('open');
+    }
+
+    function cerrarModalReset() {
+      document.getElementById('modal-reset-bg').classList.remove('open');
+    }
+
+    async function confirmarReset() {
+      cerrarModalReset();
+      const numberId    = document.getElementById('rp-id').value.trim();
+      const newPassword = document.getElementById('rp-pass').value;
+      try {
+        await resetPassword(numberId, newPassword);
+        showAlert('alert-reset', 'Contraseña reseteada exitosamente.', 'success');
+        document.getElementById('rp-id').value = '';
+        document.getElementById('rp-pass').value = '';
+        document.getElementById('rp-pass2').value = '';
+      } catch (e) {
+        showAlert('alert-reset', 'Error: ' + e.message, 'error');
+      }
+    }
+
+    // ── Materias ──
+    let materiasCache = [];
+
+    async function cargarMaterias() {
+      try {
+        materiasCache = await api('/api/subjects');
+        renderMaterias();
+        actualizarSelects();
+      } catch (e) {
+        document.getElementById('lista-materias').innerHTML =
+          '<div class="empty"><p>Error al cargar materias.</p></div>';
+      }
+    }
+
+    function renderMaterias() {
+      const wrap = document.getElementById('lista-materias');
+      if (!materiasCache.length) {
+        wrap.innerHTML = '<div class="empty"><i class="ti ti-book-off"></i><p>No hay materias registradas.</p></div>';
+        return;
+      }
+      wrap.innerHTML = materiasCache.map(function(m) {
+        return '<div class="session-item">' +
+          '<div>' +
+            '<div style="font-weight:500;">' + m.name + '</div>' +
+            '<div style="font-size:12px; color:var(--gray-400);">' + (m.description || '—') + '</div>' +
+          '</div>' +
+          ''
+        '</div>';
+      }).join('');
+    }
+
+    function actualizarSelects() {
+      var opts = '<option value="">Selecciona una materia</option>' +
+        materiasCache.map(function(m) {
+          return '<option value="' + m.id + '" data-name="' + m.name + '" data-desc="' + (m.description || '') + '">' + m.name + '</option>';
+        }).join('');
+      document.getElementById('mat-edit-select').innerHTML = opts;
+      // También llenar selects de inscripción y asignación
+      var optsSimple = '<option value="">Selecciona una materia</option>' +
+        materiasCache.map(function(m) {
+          return '<option value="' + m.id + '">' + m.name + '</option>';
+        }).join('');
+      document.getElementById('i-subject').innerHTML = optsSimple;
+      document.getElementById('assign-subject').innerHTML = optsSimple;
+    }
+
+    async function asignarMateria() {
+      var teacherNumberId = document.getElementById('assign-teacher').value.trim();
+      var subjectId = document.getElementById('assign-subject').value;
+      if (!teacherNumberId || !subjectId) { showAlert('alert-assign', 'Completa ambos campos.', 'error'); return; }
+      try {
+        await assignSubjectToTeacher(teacherNumberId, subjectId);
+        showAlert('alert-assign', 'Materia asignada exitosamente.', 'success');
+        document.getElementById('assign-teacher').value = '';
+        document.getElementById('assign-subject').value = '';
+      } catch (e) {
+        showAlert('alert-assign', 'Error: ' + e.message, 'error');
+      }
+    }
+
+    async function verMateriasDocente() {
+      var teacherNumberId = document.getElementById('ver-teacher-id').value.trim();
+      if (!teacherNumberId) { showAlert('alert-ver-docente', 'Ingresa el ID del docente.', 'error'); return; }
+      var wrap = document.getElementById('materias-docente-wrap');
+      wrap.innerHTML = '<div class="empty"><i class="ti ti-loader"></i><p>Cargando...</p></div>';
+      try {
+        var data = await getTeacherSubjects(teacherNumberId);
+        if (!data || !data.length) {
+          wrap.innerHTML = '<div class="empty"><p>Este docente no tiene materias asignadas.</p></div>';
+          return;
+        }
+        wrap.innerHTML = data.map(function(ts) {
+          return '<div class="session-item">' +
+            '<div>' +
+              '<div style="font-weight:500;">' + ts.subject.name + '</div>' +
+              '<div style="font-size:12px; color:var(--gray-400);">' + (ts.subject.description || '') + '</div>' +
+            '</div>' +
+            '<button class="btn btn-danger" style="font-size:12px; padding:6px 10px;" onclick="desasignarMateria(\'' + teacherNumberId + '\',' + ts.subject.id + ')">' +
+              '<i class="ti ti-x"></i> Quitar' +
+            '</button>' +
+          '</div>';
+        }).join('');
+      } catch (e) {
+        wrap.innerHTML = '<div class="empty"><p>Error: ' + e.message + '</p></div>';
+      }
+    }
+
+    async function desasignarMateria(teacherNumberId, subjectId) {
+      if (!confirm('¿Quitar esta materia del docente?')) return;
+      try {
+        await unassignSubjectFromTeacher(teacherNumberId, subjectId);
+        showAlert('alert-ver-docente', 'Materia desasignada.', 'success');
+        verMateriasDocente();
+      } catch (e) {
+        showAlert('alert-ver-docente', 'Error: ' + e.message, 'error');
+      }
+    }
+
+    function cargarDatosEdicion() {
+      var sel = document.getElementById('mat-edit-select');
+      var opt = sel.options[sel.selectedIndex];
+      document.getElementById('mat-edit-name').value = opt.dataset.name || '';
+      document.getElementById('mat-edit-desc').value = opt.dataset.desc || '';
+    }
+
+    async function crearMateria() {
+      var name = document.getElementById('mat-name').value.trim();
+      var description = document.getElementById('mat-desc').value.trim();
+      if (!name) { showAlert('alert-materia-crear', 'El nombre es obligatorio.', 'error'); return; }
+      try {
+        await api('/api/subjects', { method: 'POST', body: JSON.stringify({ name: name, description: description }) });
+        showAlert('alert-materia-crear', 'Materia agregada exitosamente.', 'success');
+        document.getElementById('mat-name').value = '';
+        document.getElementById('mat-desc').value = '';
+        cargarMaterias();
+      } catch (e) {
+        showAlert('alert-materia-crear', 'Error: ' + e.message, 'error');
+      }
+    }
+
+    async function editarMateria() {
+      var id = document.getElementById('mat-edit-select').value;
+      var name = document.getElementById('mat-edit-name').value.trim();
+      var description = document.getElementById('mat-edit-desc').value.trim();
+      if (!id) { showAlert('alert-materia-editar', 'Selecciona una materia.', 'error'); return; }
+      if (!name) { showAlert('alert-materia-editar', 'El nombre es obligatorio.', 'error'); return; }
+      try {
+        await api('/api/subjects/' + id, { method: 'PUT', body: JSON.stringify({ name: name, description: description }) });
+        showAlert('alert-materia-editar', 'Materia actualizada.', 'success');
+        cargarMaterias();
+      } catch (e) {
+        showAlert('alert-materia-editar', 'Error: ' + e.message, 'error');
+      }
+    }
+
+    cargarMaterias();
+
+    async function cargarMateriasConDocentes() {
+      try {
+        var data = await api('/api/subjects/with-teachers');
+        var wrap = document.getElementById('lista-materias-docentes');
+        if (!data.length) {
+          wrap.innerHTML = '<div class="empty"><i class="ti ti-book-off"></i><p>No hay materias registradas.</p></div>';
+          return;
+        }
+        wrap.innerHTML = data.map(function(m) {
+          var teachersList = m.teachers && m.teachers.length
+            ? m.teachers.map(function(t) {
+                return '<div style="display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:0.5px solid var(--gray-100);">' +
+                  '<div style="width:32px; height:32px; border-radius:50%; background:var(--green-50); border:0.5px solid var(--green-200); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; color:var(--green-700);">' +
+                    t.name.split(' ').map(function(w){ return w[0]; }).join('').substring(0,2).toUpperCase() +
+                  '</div>' +
+                  '<div>' +
+                    '<div style="font-size:14px; font-weight:500;">' + t.name + '</div>' +
+                    '<div style="font-size:12px; color:var(--gray-400);">ID: ' + t.numberId + (t.department ? ' · ' + t.department : '') + '</div>' +
+                  '</div>' +
+                '</div>';
+              }).join('')
+            : '<div style="font-size:13px; color:var(--gray-400); padding:6px 0;">Sin docentes asignados aún</div>';
+          return '<div style="padding:14px 0; border-bottom:0.5px solid var(--gray-200);">' +
+            '<div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">' +
+              '<i class="ti ti-book" style="color:var(--green-700);"></i>' +
+              '<span style="font-weight:600; font-size:15px;">' + m.name + '</span>' +
+              (m.description ? '<span style="font-size:12px; color:var(--gray-400);">· ' + m.description + '</span>' : '') +
+            '</div>' +
+            '<div style="padding-left:24px;">' + teachersList + '</div>' +
+          '</div>';
+        }).join('');
+      } catch (e) {
+        document.getElementById('lista-materias-docentes').innerHTML =
+          '<div class="empty"><p>Error al cargar.</p></div>';
+      }
+    }
+
+    cargarMateriasConDocentes();
+  </script>
+</body>
+</html>
