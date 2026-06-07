@@ -196,10 +196,10 @@
                   <td><span class="badge ${rolClass}">${u.role || '—'}</span></td>
                   <td>
                     <div class="action-btns">
-                      <button class="btn-icon" title="Resetear contraseña" onclick="abrirReset('${u.numberId}', '${u.name}')">
+                      ${(u.role !== 'ADMIN' && u.role !== 'SUBADMIN') ? `<button class="btn-icon" title="Resetear contraseña" onclick="abrirReset('${u.numberId}', '${u.name}')">
                         <i class="ti ti-key"></i>
-                      </button>
-                      ${window.__userRole !== 'SUBADMIN' ? `<button class="btn-icon danger" title="Eliminar usuario" onclick="abrirEliminar('${u.numberId}', '${u.name}')">
+                      </button>` : ''}
+                      ${(u.role !== 'ADMIN' && u.role !== 'SUBADMIN') ? `<button class="btn-icon danger" title="Eliminar usuario" onclick="abrirEliminar('${u.numberId}', '${u.name}')">
                         <i class="ti ti-trash"></i>
                       </button>` : ''}
                     </div>
