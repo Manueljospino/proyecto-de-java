@@ -1,12 +1,11 @@
 package com.universidad.asistencia.Controller;
 
+import com.universidad.asistencia.Entities.InscriptionRequest;
 import com.universidad.asistencia.Service.InscriptionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/inscription")
@@ -16,26 +15,16 @@ public class InscriptionController {
     private InscriptionService inscriptionService;
 
     @PostMapping("/inscribe")
-    public ResponseEntity<?> inscribe(@RequestBody Map<String, Object> body) {
+    public ResponseEntity<?> inscribe(@RequestBody InscriptionRequest request) {
         try {
-            String studentNumberId = (String) body.get("studentNumberId");
-            Object subjectIdObj = body.get("subjectId");
-
-            // ✅ VALIDACIÓN NUEVA
-            if (studentNumberId == null || studentNumberId.isBlank()) {
+            if (request.getStudentNumberId() == null || request.getStudentNumberId().isBlank()) {
                 return ResponseEntity.badRequest().body("El studentNumberId es obligatorio.");
             }
-            if (subjectIdObj == null) {
-                return ResponseEntity.badRequest().body("El subjectId es obligatorio.");
-            }
-
-            Long subjectId = Long.valueOf(subjectIdObj.toString());
-
-            if (subjectId <= 0) {
+            if (request.getSubjectId() == null || request.getSubjectId() <= 0) {
                 return ResponseEntity.badRequest().body("El subjectId no es válido.");
             }
 
-            inscriptionService.inscribeStudent(studentNumberId, subjectId);
+            inscriptionService.inscribeStudent(request.getStudentNumberId(), request.getSubjectId());
             return ResponseEntity.ok("Estudiante inscrito exitosamente.");
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
