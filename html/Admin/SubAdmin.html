@@ -32,11 +32,11 @@
         </div>
         <div class="field">
           <label for="r-id">Número de ID</label>
-          <input type="text" id="r-id" placeholder="Ej: 1005123456" />
+          <input type="text" id="r-id" placeholder="Ej: 1005123456" oninput="this.value = this.value.replace(/[^0-9]/g, '')" inputmode="numeric" />
         </div>
         <div class="field">
           <label for="r-mail">Correo electrónico</label>
-          <input type="email" id="r-mail" placeholder="correo@universidad.edu" />
+          <input type="email" id="r-mail" placeholder="correo@unicesar.edu.co" />
         </div>
         <div class="field">
           <label for="r-password">Contraseña</label>
@@ -130,8 +130,7 @@
       </div>
     </div>
 
-
-    <!-- ── Asignación Docente-Materia ── -->
+    <!-- Asignación Docente-Materia -->
     <hr class="divider" />
     <h2 class="page-title" style="font-size:18px; margin-bottom:1rem;">Asignación Docente → Materia</h2>
 
@@ -172,12 +171,11 @@
       </div>
     </div>
 
-    <!-- ── Gestión de Materias ── -->
+    <!-- Gestión de Materias -->
     <hr class="divider" />
     <h2 class="page-title" style="font-size:18px; margin-bottom:1rem;">Gestión de Materias</h2>
 
     <div class="grid-2">
-      <!-- Crear materia -->
       <div class="card">
         <p class="section-title">Agregar materia</p>
         <div id="alert-materia-crear" class="alert"></div>
@@ -194,7 +192,6 @@
         </button>
       </div>
 
-      <!-- Editar materia -->
       <div class="card">
         <p class="section-title">Editar materia</p>
         <div id="alert-materia-editar" class="alert"></div>
@@ -218,7 +215,6 @@
       </div>
     </div>
 
-
     <!-- Materias con docentes -->
     <div class="card">
       <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; flex-wrap:wrap; gap:1rem;">
@@ -230,7 +226,6 @@
       </div>
     </div>
 
-  
   <!-- Modal confirmación resetear contraseña -->
   <div class="modal-bg" id="modal-reset-bg">
     <div class="modal">
@@ -252,7 +247,6 @@
     setNavUser();
     buildSidebar('SUBADMIN', 'admin');
 
-    // ── Usuarios ──
     async function registrarUsuario() {
       const data = {
         name:       document.getElementById('r-name').value.trim(),
@@ -267,6 +261,15 @@
       };
       if (!data.name || !data.numberId || !data.mail || !data.password || !data.role) {
         showAlert('alert-register', 'Completa los campos obligatorios.', 'error'); return;
+      }
+      if (!/^\d+$/.test(data.numberId)) {
+        showAlert('alert-register', 'El número de ID solo debe contener dígitos.', 'error'); return;
+      }
+      if (!data.mail.endsWith('@unicesar.edu.co')) {
+        showAlert('alert-register', 'El correo debe ser del dominio @unicesar.edu.co', 'error'); return;
+      }
+      if (data.password.length < 8) {
+        showAlert('alert-register', 'La contraseña debe tener al menos 8 caracteres.', 'error'); return;
       }
       try {
         await registerUser(data);
@@ -350,7 +353,6 @@
       if (!numberId || !newPassword || !confirm) { showAlert('alert-reset', 'Completa todos los campos.', 'error'); return; }
       if (newPassword !== confirm) { showAlert('alert-reset', 'Las contraseñas no coinciden.', 'error'); return; }
       if (newPassword.length < 8) { showAlert('alert-reset', 'La contraseña debe tener mínimo 8 caracteres.', 'error'); return; }
-      // Mostrar modal de confirmación
       document.getElementById('modal-reset-name').textContent = 'ID: ' + numberId;
       document.getElementById('modal-reset-bg').classList.add('open');
     }
@@ -374,7 +376,6 @@
       }
     }
 
-    // ── Materias ──
     let materiasCache = [];
 
     async function cargarMaterias() {
@@ -400,7 +401,6 @@
             '<div style="font-weight:500;">' + m.name + '</div>' +
             '<div style="font-size:12px; color:var(--gray-400);">' + (m.description || '—') + '</div>' +
           '</div>' +
-          ''
         '</div>';
       }).join('');
     }
@@ -411,7 +411,6 @@
           return '<option value="' + m.id + '" data-name="' + m.name + '" data-desc="' + (m.description || '') + '">' + m.name + '</option>';
         }).join('');
       document.getElementById('mat-edit-select').innerHTML = opts;
-      // También llenar selects de inscripción y asignación
       var optsSimple = '<option value="">Selecciona una materia</option>' +
         materiasCache.map(function(m) {
           return '<option value="' + m.id + '">' + m.name + '</option>';

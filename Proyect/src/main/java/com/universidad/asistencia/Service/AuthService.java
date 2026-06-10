@@ -46,6 +46,34 @@ public class AuthService {
     }
 
     public Person register(RegisterRequest request) {
+        // Validar campos obligatorios
+        if (request.getName() == null || request.getName().isBlank() ||
+                request.getMail() == null || request.getMail().isBlank() ||
+                request.getNumberId() == null || request.getNumberId().isBlank() ||
+                request.getPassword() == null || request.getPassword().isBlank()) {
+            throw new RuntimeException("Todos los campos obligatorios deben estar completos");
+        }
+
+        for (char c : request.getName().toCharArray()) {
+            if (!Character.isLetter(c) && !Character.isWhitespace(c)) {
+                throw new RuntimeException("El nombre solo debe contener letras");
+            }
+        }
+
+        for (char c : request.getNumberId().toCharArray()) {
+            if (!Character.isDigit(c)) {
+                throw new RuntimeException("El número de ID solo debe contener dígitos");
+            }
+        }
+
+        if (!request.getMail().endsWith("@unicesar.edu.co")) {
+            throw new RuntimeException("El correo debe ser del dominio @unicesar.edu.co");
+        }
+
+        if (request.getPassword().length() < 8) {
+            throw new RuntimeException("La contraseña debe tener al menos 8 caracteres");
+        }
+
         if (PersonRepository.findByNumberId(request.getNumberId()).isPresent()) {
             throw new RuntimeException("Ya existe un usuario con ese número de identificación");
         }
