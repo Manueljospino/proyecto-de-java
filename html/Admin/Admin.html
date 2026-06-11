@@ -5,7 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin · Asistencia</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
-  <link rel="stylesheet" href="../styles.css" /></head>
+  <link rel="stylesheet" href="../styles.css" />
+  <style id="body-hide">body { visibility: hidden; }</style>
+</head>
 <body>
 
   <nav class="navbar">
@@ -21,7 +23,6 @@
       <h1 class="page-title" style="margin:0;">Panel de Administrador</h1>
     </div>
 
-    <!-- Registrar usuario -->
     <div class="card">
       <p class="section-title">Registrar nuevo usuario</p>
       <div id="alert-register" class="alert"></div>
@@ -80,7 +81,6 @@
     </div>
 
     <div class="grid-2">
-      <!-- Inscribir estudiante -->
       <div class="card">
         <p class="section-title">Inscribir estudiante a materia</p>
         <div id="alert-inscribe" class="alert"></div>
@@ -99,7 +99,6 @@
         </button>
       </div>
 
-      <!-- Resetear contraseña -->
       <div class="card">
         <p class="section-title">Resetear contraseña</p>
         <div id="alert-reset" class="alert"></div>
@@ -131,7 +130,6 @@
       </div>
     </div>
 
-    <!-- Eliminar usuario -->
     <div class="card" style="border: 0.5px solid #fca5a5;">
       <p class="section-title" style="color: var(--red-700);">Eliminar usuario</p>
       <div id="alert-delete" class="alert"></div>
@@ -165,7 +163,6 @@
       </div>
     </div>
 
-    <!-- Asignación Docente-Materia -->
     <hr class="divider" />
     <h2 class="page-title" style="font-size:18px; margin-bottom:1rem;">Asignación Docente → Materia</h2>
 
@@ -206,7 +203,6 @@
       </div>
     </div>
 
-    <!-- Gestión de Materias -->
     <hr class="divider" />
     <h2 class="page-title" style="font-size:18px; margin-bottom:1rem;">Gestión de Materias</h2>
 
@@ -271,7 +267,6 @@
       </div>
     </div>
 
-  <!-- Modal confirmación resetear contraseña -->
   <div class="modal-bg" id="modal-reset-bg">
     <div class="modal">
       <h3><i class="ti ti-alert-triangle" style="color:var(--red-700);"></i> Confirmar cambio</h3>
@@ -288,17 +283,17 @@
   <script src="../sidebar.js"></script>
   <script>
     const __payload = (() => { try { const t = localStorage.getItem('jwt'); if (!t) return null; const b = t.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'); return JSON.parse(decodeURIComponent(atob(b).split('').map(c=>'%'+('00'+c.charCodeAt(0).toString(16)).slice(-2)).join(''))); } catch(e){return null;} })();
-    if (!__payload || (__payload.role !== 'ADMIN' && __payload.role !== 'SUBADMIN')) { location.href = '../index.html'; }
+    if (!__payload || (__payload.role !== 'ADMIN' && __payload.role !== 'SUBADMIN')) {
+      location.href = '../index.html';
+    } else {
+      document.getElementById('body-hide').remove();
+    }
     setNavUser();
     buildSidebar(__payload.role === 'SUBADMIN' ? 'SUBADMIN' : 'ADMIN', 'admin');
 
     if (__payload.role === 'SUBADMIN') {
       const optAdmin = document.getElementById('opt-admin');
       if (optAdmin) optAdmin.style.display = 'none';
-      const eliminarCard = document.getElementById('card-eliminar-usuario');
-      if (eliminarCard) eliminarCard.style.display = 'none';
-      const eliminarMateria = document.getElementById('card-eliminar-materia');
-      if (eliminarMateria) eliminarMateria.style.display = 'none';
     } else {
       const optAdmin = document.getElementById('opt-admin');
       if (optAdmin) optAdmin.style.display = '';

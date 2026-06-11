@@ -5,7 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sub-Admin · Asistencia</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
-  <link rel="stylesheet" href="../styles.css" /></head>
+  <link rel="stylesheet" href="../styles.css" />
+  <style id="body-hide">body { visibility: hidden; }</style>
+</head>
 <body>
 
   <nav class="navbar">
@@ -21,7 +23,6 @@
       <h1 class="page-title" style="margin:0;">Panel de Sub-Administrador</h1>
     </div>
 
-    <!-- Registrar usuario -->
     <div class="card">
       <p class="section-title">Registrar nuevo usuario</p>
       <div id="alert-register" class="alert"></div>
@@ -79,7 +80,6 @@
     </div>
 
     <div class="grid-2">
-      <!-- Inscribir estudiante -->
       <div class="card">
         <p class="section-title">Inscribir estudiante a materia</p>
         <div id="alert-inscribe" class="alert"></div>
@@ -98,7 +98,6 @@
         </button>
       </div>
 
-      <!-- Resetear contraseña -->
       <div class="card">
         <p class="section-title">Resetear contraseña</p>
         <div id="alert-reset" class="alert"></div>
@@ -130,7 +129,6 @@
       </div>
     </div>
 
-    <!-- Asignación Docente-Materia -->
     <hr class="divider" />
     <h2 class="page-title" style="font-size:18px; margin-bottom:1rem;">Asignación Docente → Materia</h2>
 
@@ -171,7 +169,6 @@
       </div>
     </div>
 
-    <!-- Gestión de Materias -->
     <hr class="divider" />
     <h2 class="page-title" style="font-size:18px; margin-bottom:1rem;">Gestión de Materias</h2>
 
@@ -215,7 +212,6 @@
       </div>
     </div>
 
-    <!-- Materias con docentes -->
     <div class="card">
       <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; flex-wrap:wrap; gap:1rem;">
         <p class="section-title" style="margin:0;">Materias y sus docentes</p>
@@ -226,7 +222,6 @@
       </div>
     </div>
 
-  <!-- Modal confirmación resetear contraseña -->
   <div class="modal-bg" id="modal-reset-bg">
     <div class="modal">
       <h3><i class="ti ti-alert-triangle" style="color:var(--red-700);"></i> Confirmar cambio</h3>
@@ -243,7 +238,11 @@
   <script src="../sidebar.js"></script>
   <script>
     const __payload = (() => { try { const t = localStorage.getItem('jwt'); if (!t) return null; const b = t.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'); return JSON.parse(decodeURIComponent(atob(b).split('').map(c=>'%'+('00'+c.charCodeAt(0).toString(16)).slice(-2)).join(''))); } catch(e){return null;} })();
-    if (!__payload || __payload.role !== 'SUBADMIN') { location.href = '../index.html'; }
+    if (!__payload || __payload.role !== 'SUBADMIN') {
+      location.href = '../index.html';
+    } else {
+      document.getElementById('body-hide').remove();
+    }
     setNavUser();
     buildSidebar('SUBADMIN', 'admin');
 
@@ -295,45 +294,6 @@
       }
     }
 
-    let usuarioEncontrado = null;
-
-    async function buscarUsuario() {
-      const numberId = document.getElementById('d-id').value.trim();
-      if (!numberId) { showAlert('alert-delete', 'Ingresa un ID para buscar.', 'error'); return; }
-      document.getElementById('user-found').style.display = 'none';
-      usuarioEncontrado = null;
-      try {
-        const persona = await api('/api/auth/find/' + numberId);
-        usuarioEncontrado = persona;
-        const initials = (persona.name || '?').split(' ').map(function(w){ return w[0]; }).join('').substring(0,2).toUpperCase();
-        document.getElementById('user-avatar').textContent = initials;
-        document.getElementById('user-name').textContent = persona.name || '—';
-        document.getElementById('user-mail').textContent = persona.mail || '—';
-        const roleBadge = document.getElementById('user-role');
-        roleBadge.textContent = persona.role || '—';
-        roleBadge.className = 'badge ' + (persona.role === 'ESTUDIANTE' ? 'badge-green' : persona.role === 'DOCENTE' ? 'badge-gray' : 'badge-red');
-        document.getElementById('user-id-badge').textContent = 'ID: ' + numberId;
-        document.getElementById('user-found').style.display = 'block';
-      } catch (e) {
-        showAlert('alert-delete', 'Usuario no encontrado: ' + e.message, 'error');
-      }
-    }
-
-    async function confirmarEliminar() {
-      if (!usuarioEncontrado) return;
-      const numberId = document.getElementById('d-id').value.trim();
-      if (!confirm('¿Eliminar a ' + usuarioEncontrado.name + ' (ID: ' + numberId + ')?\nEsta acción no se puede deshacer.')) return;
-      try {
-        await api('/api/auth/delete/' + numberId, { method: 'DELETE' });
-        showAlert('alert-delete', 'Usuario ' + usuarioEncontrado.name + ' eliminado exitosamente.', 'success');
-        document.getElementById('d-id').value = '';
-        document.getElementById('user-found').style.display = 'none';
-        usuarioEncontrado = null;
-      } catch (e) {
-        showAlert('alert-delete', 'Error: ' + e.message, 'error');
-      }
-    }
-
     function togglePass(inputId, eyeId) {
       const input = document.getElementById(inputId);
       const eye   = document.getElementById(eyeId);
@@ -381,28 +341,10 @@
     async function cargarMaterias() {
       try {
         materiasCache = await api('/api/subjects');
-        renderMaterias();
         actualizarSelects();
       } catch (e) {
-        document.getElementById('lista-materias').innerHTML =
-          '<div class="empty"><p>Error al cargar materias.</p></div>';
+        console.error('Error al cargar materias:', e);
       }
-    }
-
-    function renderMaterias() {
-      const wrap = document.getElementById('lista-materias');
-      if (!materiasCache.length) {
-        wrap.innerHTML = '<div class="empty"><i class="ti ti-book-off"></i><p>No hay materias registradas.</p></div>';
-        return;
-      }
-      wrap.innerHTML = materiasCache.map(function(m) {
-        return '<div class="session-item">' +
-          '<div>' +
-            '<div style="font-weight:500;">' + m.name + '</div>' +
-            '<div style="font-size:12px; color:var(--gray-400);">' + (m.description || '—') + '</div>' +
-          '</div>' +
-        '</div>';
-      }).join('');
     }
 
     function actualizarSelects() {
