@@ -1,8 +1,8 @@
 package com.universidad.asistencia.Controller;
 
 import com.universidad.asistencia.Entities.Subject;
-import com.universidad.asistencia.Entities.Session;
-import com.universidad.asistencia.Repositories.SessionRepository;
+import com.universidad.asistencia.Entities.TeacherSubject;
+import com.universidad.asistencia.Repositories.TeacherSubjectRepository;
 import com.universidad.asistencia.Service.SubjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +21,7 @@ public class SubjectController {
     private SubjectService subjectService;
 
     @Autowired
-    private SessionRepository sessionRepository;
+    private TeacherSubjectRepository teacherSubjectRepository;
 
     // GET /api/subjects — listar todas (Admin y Docente)
     @GetMapping
@@ -34,23 +34,16 @@ public class SubjectController {
     public ResponseEntity<?> getAllWithTeachers() {
         List<Subject> subjects = subjectService.getAll();
         List<Map<String, Object>> result = subjects.stream().map(subject -> {
-            List<Session> sessions = sessionRepository.findBySubjectId(subject.getId());
-            List<Map<String, String>> teachers = sessions.stream()
-                    .filter(s -> s.getDocente() != null)
-                    .collect(Collectors.collectingAndThen(
-                            Collectors.toMap(
-                                    s -> s.getDocente().getNumberId(),
-                                    s -> s.getDocente(),
-                                    (a, b) -> a
-                            ),
-                            map -> map.values().stream().map(t -> {
-                                Map<String, String> td = new LinkedHashMap<>();
-                                td.put("name", t.getName());
-                                td.put("numberId", t.getNumberId());
-                                td.put("department", t.getDepartment());
-                                return td;
-                            }).collect(Collectors.toList())
-                    ));
+            List<TeacherSubject> asignaciones = teacherSubjectRepository.findBySubjectId(subject.getId());
+            List<Map<String, String>> teachers = asignaciones.stream()
+                    .filter(ts -> ts.getTeacher() != null)
+                    .map(ts -> {
+                        Map<String, String> td = new LinkedHashMap<>();
+                        td.put("name", ts.getTeacher().getName());
+                        td.put("numberId", ts.getTeacher().getNumberId());
+                        td.put("department", ts.getTeacher().getDepartment());
+                        return td;
+                    }).collect(Collectors.toList());
             Map<String, Object> row = new LinkedHashMap<>();
             row.put("id", subject.getId());
             row.put("name", subject.getName());
