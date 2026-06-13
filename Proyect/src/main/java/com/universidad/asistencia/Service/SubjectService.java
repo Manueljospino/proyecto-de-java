@@ -2,6 +2,7 @@ package com.universidad.asistencia.Service;
 
 import com.universidad.asistencia.Entities.Subject;
 import com.universidad.asistencia.Repositories.InscriptionRepository;
+import com.universidad.asistencia.Repositories.SessionRepository;
 import com.universidad.asistencia.Repositories.SubjectRepository;
 import com.universidad.asistencia.Repositories.TeacherSubjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,9 @@ public class SubjectService {
 
     @Autowired
     private InscriptionRepository inscriptionRepository;
+
+    @Autowired
+    private SessionRepository sessionRepository;
 
     public List<Subject> getAll() {
         return subjectRepository.findAll();
@@ -58,6 +62,8 @@ public class SubjectService {
         inscriptionRepository.deleteAll(inscriptionRepository.findBySubjectId(id));
         // Eliminar asignaciones docente-materia
         teacherSubjectRepository.deleteAll(teacherSubjectRepository.findBySubjectId(id));
+        // Eliminar sesiones de esta materia (y sus asistencias en cascada)
+        sessionRepository.deleteAll(sessionRepository.findBySubjectId(id));
         // Eliminar la materia
         subjectRepository.deleteById(id);
     }
