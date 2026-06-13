@@ -2,17 +2,20 @@ package com.universidad.asistencia.Service;
 
 import com.universidad.asistencia.Entities.Person;
 import com.universidad.asistencia.Entities.RegisterRequest;
+import com.universidad.asistencia.Entities.Session;
 import com.universidad.asistencia.Entities.Student;
 import com.universidad.asistencia.Entities.Teacher;
 import com.universidad.asistencia.Entities.Admin;
 import com.universidad.asistencia.Entities.SubAdmin;
 import com.universidad.asistencia.Utils.JwtUtil;
 import com.universidad.asistencia.Repositories.PersonRepository;
+import com.universidad.asistencia.Repositories.SessionRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,7 +32,8 @@ public class AuthService {
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
-
+    @Autowired
+    private SessionRepository sessionRepository;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -46,18 +50,11 @@ public class AuthService {
     }
 
     public Person register(RegisterRequest request) {
-        // Validar campos obligatorios
         if (request.getName() == null || request.getName().isBlank() ||
                 request.getMail() == null || request.getMail().isBlank() ||
                 request.getNumberId() == null || request.getNumberId().isBlank() ||
                 request.getPassword() == null || request.getPassword().isBlank()) {
             throw new RuntimeException("Todos los campos obligatorios deben estar completos");
-        }
-
-        // Validar longitud del numberId
-        String numberId = request.getNumberId().trim();
-        if (numberId.length() < 6 || numberId.length() > 10) {
-            throw new RuntimeException("El ID debe tener entre 6 y 10 caracteres");
         }
 
         for (char c : request.getName().toCharArray()) {
@@ -129,6 +126,7 @@ public class AuthService {
 
         return PersonRepository.save(person);
     }
+
     public void resetPassword(String numberId, String newPassword) {
         Person person = PersonRepository.findByNumberId(numberId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
@@ -136,6 +134,7 @@ public class AuthService {
         person.setPassword(passwordEncoder.encode(newPassword));
         PersonRepository.save(person);
     }
+
     public void changePassword(String numberId, String currentPassword, String newPassword) {
         Person person = PersonRepository.findByNumberId(numberId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
@@ -147,9 +146,17 @@ public class AuthService {
         person.setPassword(passwordEncoder.encode(newPassword));
         PersonRepository.save(person);
     }
+
+    @Transactional
     public void deleteUser(String numberId) {
         Person person = PersonRepository.findByNumberId(numberId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        if (person instanceof Teacher teacher) {
+            List<Session> sesiones = sessionRepository.findByDocente(teacher);
+            sessionRepository.deleteAll(sesiones);
+        }
+
         PersonRepository.delete(person);
     }
 
@@ -157,6 +164,7 @@ public class AuthService {
         return PersonRepository.findByNumberId(numberId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
     }
+
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -177,6 +185,4 @@ public class AuthService {
         }
         return result;
     }
-
-
 }
