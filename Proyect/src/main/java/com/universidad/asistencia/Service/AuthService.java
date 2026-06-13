@@ -54,6 +54,12 @@ public class AuthService {
             throw new RuntimeException("Todos los campos obligatorios deben estar completos");
         }
 
+        // Validar longitud del numberId
+        String numberId = request.getNumberId().trim();
+        if (numberId.length() < 6 || numberId.length() > 10) {
+            throw new RuntimeException("El ID debe tener entre 6 y 10 caracteres");
+        }
+
         for (char c : request.getName().toCharArray()) {
             if (!Character.isLetter(c) && !Character.isWhitespace(c)) {
                 throw new RuntimeException("El nombre solo debe contener letras");

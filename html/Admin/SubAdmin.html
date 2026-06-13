@@ -59,7 +59,19 @@
         </div>
         <div class="field" id="wrap-semester">
           <label for="r-semester">Semestre (solo estudiantes)</label>
-          <input type="text" id="r-semester" placeholder="Ej: 3" />
+          <select id="r-semester">
+          <option value="">-- Seleccionar semestre --</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+        </select>
         </div>
         <div class="field" id="wrap-program">
           <label for="r-program">Programa académico</label>
@@ -263,6 +275,9 @@
       }
       if (!/^\d+$/.test(data.numberId)) {
         showAlert('alert-register', 'El número de ID solo debe contener dígitos.', 'error'); return;
+      if (data.numberId.length < 6 || data.numberId.length > 10) {
+        showAlert('alert-register', 'El ID debe tener entre 6 y 10 caracteres.', 'error'); return;
+      }
       }
       if (!data.mail.endsWith('@unicesar.edu.co')) {
         showAlert('alert-register', 'El correo debe ser del dominio @unicesar.edu.co', 'error'); return;
