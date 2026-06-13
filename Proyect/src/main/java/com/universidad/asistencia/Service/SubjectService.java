@@ -2,8 +2,10 @@ package com.universidad.asistencia.Service;
 
 import com.universidad.asistencia.Entities.Subject;
 import com.universidad.asistencia.Repositories.SubjectRepository;
+import com.universidad.asistencia.Repositories.TeacherSubjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -12,6 +14,9 @@ public class SubjectService {
 
     @Autowired
     private SubjectRepository subjectRepository;
+
+    @Autowired
+    private TeacherSubjectRepository teacherSubjectRepository;
 
     public List<Subject> getAll() {
         return subjectRepository.findAll();
@@ -40,10 +45,13 @@ public class SubjectService {
         return subjectRepository.save(subject);
     }
 
+    @Transactional
     public void delete(Long id) {
         if (!subjectRepository.existsById(id)) {
             throw new RuntimeException("Materia no encontrada.");
         }
+        // Eliminar primero las asignaciones docente-materia para liberar la FK
+        teacherSubjectRepository.deleteAll(teacherSubjectRepository.findBySubjectId(id));
         subjectRepository.deleteById(id);
     }
 }
