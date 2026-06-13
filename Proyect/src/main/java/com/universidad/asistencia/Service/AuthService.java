@@ -12,6 +12,7 @@ import com.universidad.asistencia.Utils.JwtUtil;
 import com.universidad.asistencia.Repositories.PersonRepository;
 import com.universidad.asistencia.Repositories.SessionRepository;
 import com.universidad.asistencia.Repositories.TeacherSubjectRepository;
+import com.universidad.asistencia.Repositories.InscriptionRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,9 @@ public class AuthService {
 
     @Autowired
     private TeacherSubjectRepository teacherSubjectRepository;
+
+    @Autowired
+    private InscriptionRepository inscriptionRepository;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -160,12 +164,20 @@ public class AuthService {
 
         if (person instanceof Teacher teacher) {
             // Eliminar asignaciones docente-materia
-            List<TeacherSubject> asignaciones = teacherSubjectRepository.findByTeacherNumberId(numberId);
-            teacherSubjectRepository.deleteAll(asignaciones);
-
+            teacherSubjectRepository.deleteAll(
+                    teacherSubjectRepository.findByTeacherNumberId(numberId)
+            );
             // Eliminar sesiones (y sus asistencias en cascada)
-            List<Session> sesiones = sessionRepository.findByDocente(teacher);
-            sessionRepository.deleteAll(sesiones);
+            sessionRepository.deleteAll(
+                    sessionRepository.findByDocente(teacher)
+            );
+        }
+
+        if (person instanceof Student) {
+            // Eliminar inscripciones del estudiante
+            inscriptionRepository.deleteAll(
+                    inscriptionRepository.findByStudentNumberId(numberId)
+            );
         }
 
         PersonRepository.delete(person);
