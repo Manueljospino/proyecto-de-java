@@ -5,11 +5,13 @@ import com.universidad.asistencia.Entities.RegisterRequest;
 import com.universidad.asistencia.Entities.Session;
 import com.universidad.asistencia.Entities.Student;
 import com.universidad.asistencia.Entities.Teacher;
+import com.universidad.asistencia.Entities.TeacherSubject;
 import com.universidad.asistencia.Entities.Admin;
 import com.universidad.asistencia.Entities.SubAdmin;
 import com.universidad.asistencia.Utils.JwtUtil;
 import com.universidad.asistencia.Repositories.PersonRepository;
 import com.universidad.asistencia.Repositories.SessionRepository;
+import com.universidad.asistencia.Repositories.TeacherSubjectRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +38,9 @@ public class AuthService {
     private SessionRepository sessionRepository;
 
     @Autowired
+    private TeacherSubjectRepository teacherSubjectRepository;
+
+    @Autowired
     private JwtUtil jwtUtil;
 
     public String login(String numberId, String password) {
@@ -50,6 +55,7 @@ public class AuthService {
     }
 
     public Person register(RegisterRequest request) {
+        // Validar campos obligatorios
         if (request.getName() == null || request.getName().isBlank() ||
                 request.getMail() == null || request.getMail().isBlank() ||
                 request.getNumberId() == null || request.getNumberId().isBlank() ||
@@ -153,6 +159,11 @@ public class AuthService {
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         if (person instanceof Teacher teacher) {
+            // Eliminar asignaciones docente-materia
+            List<TeacherSubject> asignaciones = teacherSubjectRepository.findByTeacherNumberId(numberId);
+            teacherSubjectRepository.deleteAll(asignaciones);
+
+            // Eliminar sesiones (y sus asistencias en cascada)
             List<Session> sesiones = sessionRepository.findByDocente(teacher);
             sessionRepository.deleteAll(sesiones);
         }
