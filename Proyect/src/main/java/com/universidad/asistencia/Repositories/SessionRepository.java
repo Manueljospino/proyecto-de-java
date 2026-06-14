@@ -11,13 +11,13 @@ import java.util.Optional;
 
 @Repository
 public interface SessionRepository extends JpaRepository<Session, Long> {
-    Optional<Session> findByDocenteNumberIdAndActivaTrue(String numberId);
-    List<Session> findByActivaTrue();
-    List<Session> findByDocente(Teacher docente);
+    Optional<Session> findByTeacherNumberIdAndActiveTrue(String numberId);
+    List<Session> findByActiveTrue();
+    List<Session> findByTeacher(Teacher teacher);
     List<Session> findBySubjectId(Long subjectId);
-    List<Session> findBySubjectIdAndActivaTrue(Long subjectId);
-    List<Session> findByDocenteNumberId(String numberId);
-    List<Session> findByDocenteNumberIdAndFechaAperturaBetween(
-            String numberId, LocalDateTime desde, LocalDateTime hasta
+    List<Session> findBySubjectIdAndActiveTrue(Long subjectId);
+    List<Session> findByTeacherNumberId(String numberId);
+    List<Session> findByTeacherNumberIdAndLocalDateTimeBetween(
+            String numberId, LocalDateTime from, LocalDateTime to
     );
 }

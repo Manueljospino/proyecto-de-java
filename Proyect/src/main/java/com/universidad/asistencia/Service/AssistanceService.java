@@ -24,7 +24,7 @@ public class AssistanceService {
         List<Inscription> inscriptions = inscriptionRepository.findByStudentNumberId(studentNumberId);
         return inscriptions.stream()
                 .filter(i -> i.getSubject() != null && i.getSubject().getId() != null)
-                .flatMap(i -> sessionRepository.findBySubjectIdAndActivaTrue(i.getSubject().getId()).stream())
+                .flatMap(i -> sessionRepository.findBySubjectIdAndActiveTrue(i.getSubject().getId()).stream())
                 .toList();
     }
 
@@ -37,7 +37,7 @@ public class AssistanceService {
             throw new RuntimeException("No tienes asignada esa materia.");
         }
 
-        if (sessionRepository.findByDocenteNumberIdAndActivaTrue(teacherNumberId).isPresent()) {
+        if (sessionRepository.findByTeacherNumberIdAndActiveTrue(teacherNumberId).isPresent()) {
             throw new RuntimeException("Ya tienes una clase abierta.");
         }
 
@@ -79,7 +79,7 @@ public class AssistanceService {
         assistance.setStudent(student);
         assistance.setTeacher(session.getTeacher());
         assistance.setSession(session);
-        assistance.setDate(LocalDateTime.now()); // ← fecha + hora exacta
+        assistance.setDate(LocalDateTime.now());
         assistance.setState("Presente");
         return assistanceRepository.save(assistance);
     }
@@ -101,7 +101,7 @@ public class AssistanceService {
                 absence.setStudent(inscription.getStudent());
                 absence.setTeacher(session.getTeacher());
                 absence.setSession(session);
-                absence.setDate(LocalDateTime.now()); // ← fecha + hora del cierre
+                absence.setDate(LocalDateTime.now());
                 absence.setState("Ausente");
                 assistanceRepository.save(absence);
             }
@@ -125,7 +125,7 @@ public class AssistanceService {
     public List<Session> getSessionsByTeacher(String teacherNumberId) {
         Teacher teacher = (Teacher) personRepository.findByNumberId(teacherNumberId)
                 .orElseThrow(() -> new RuntimeException("Docente no encontrado."));
-        return sessionRepository.findByDocente(teacher);
+        return sessionRepository.findByTeacher(teacher);
     }
 
 
@@ -135,14 +135,15 @@ public class AssistanceService {
 
     // Docente ve su historial de sesiones (con filtro opcional de fechas)
     public List<Session> getTeacherSessionHistory(String teacherNumberId,
-                                                  LocalDateTime desde,
-                                                  LocalDateTime hasta) {
-        if (desde != null && hasta != null) {
-            return sessionRepository.findByDocenteNumberIdAndFechaAperturaBetween(
-                    teacherNumberId, desde, hasta);
+                                                  LocalDateTime from,
+                                                  LocalDateTime to) {
+        if (from != null && to != null) {
+            return sessionRepository.findByTeacherNumberIdAndLocalDateTimeBetween(
+                    teacherNumberId, from, to);
         }
-        return sessionRepository.findByDocenteNumberId(teacherNumberId);
+        return sessionRepository.findByTeacherNumberId(teacherNumberId);
     }
+
     // Docente ve el listado de asistidos de una sesión específica
     public List<Assistance> getSessionDetail(Long sessionId) {
         return assistanceRepository.findBySessionId(sessionId);
