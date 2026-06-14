@@ -169,7 +169,7 @@ public class AuthService {
             );
             // Eliminar sesiones (y sus asistencias en cascada)
             sessionRepository.deleteAll(
-                    sessionRepository.findByDocente(teacher)
+                    sessionRepository.findByTeacher(teacher)
             );
         }
 
