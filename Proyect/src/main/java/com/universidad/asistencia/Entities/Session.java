@@ -19,26 +19,35 @@ public class Session {
 
     @ManyToOne
     @JoinColumn(name = "docente_id")
-    private Teacher docente;
+    private Teacher teacher;
 
-    private LocalDateTime fechaApertura;
-    private boolean activa;
+    private LocalDateTime localDateTime;
+    private boolean active;
 
     @JsonIgnore
     @OneToMany(mappedBy = "session", cascade = CascadeType.ALL)
     private List<Assistance> assistances;
 
-    public Session() {}
+    public Session() {
+    }
 
     public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
     public Subject getSubject() { return subject; }
     public void setSubject(Subject subject) { this.subject = subject; }
-    public Teacher getDocente() { return docente; }
-    public void setDocente(Teacher docente) { this.docente = docente; }
-    public LocalDateTime getFechaApertura() { return fechaApertura; }
-    public void setFechaApertura(LocalDateTime fechaApertura) { this.fechaApertura = fechaApertura; }
-    public boolean isActiva() { return activa; }
-    public void setActiva(boolean activa) { this.activa = activa; }
+
+    public Teacher getTeacher() { return teacher; }
+    public void setTeacher(Teacher teacher) { this.teacher = teacher; }
+
+    public LocalDateTime getLocalDateTime() { return localDateTime; }
+    public void setLocalDateTime(LocalDateTime localDateTime) { this.localDateTime = localDateTime; }
+
+    public boolean isActive() { return active; }
+    public void setActive(boolean active) { this.active = active; }
+
     public List<Assistance> getAssistances() { return assistances; }
     public void setAssistances(List<Assistance> assistances) { this.assistances = assistances; }
+
 }
+

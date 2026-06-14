@@ -45,10 +45,10 @@ public class AssistanceService {
                 .orElseThrow(() -> new RuntimeException("Materia no encontrada."));
 
         Session session = new Session();
-        session.setDocente(teacher);
+        session.setTeacher(teacher);
         session.setSubject(subject);
-        session.setFechaApertura(LocalDateTime.now());
-        session.setActiva(true);
+        session.setLocalDateTime(LocalDateTime.now());
+        session.setActive(true);
         return sessionRepository.save(session);
     }
 
@@ -57,7 +57,7 @@ public class AssistanceService {
         Session session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new RuntimeException("Sesión no encontrada."));
 
-        if (!session.isActiva()) {
+        if (!session.isActive()) {
             throw new RuntimeException("La sesión ya está cerrada.");
         }
 
@@ -77,7 +77,7 @@ public class AssistanceService {
 
         Assistance assistance = new Assistance();
         assistance.setStudent(student);
-        assistance.setTeacher(session.getDocente());
+        assistance.setTeacher(session.getTeacher());
         assistance.setSession(session);
         assistance.setDate(LocalDateTime.now()); // ← fecha + hora exacta
         assistance.setState("Presente");
@@ -99,7 +99,7 @@ public class AssistanceService {
             if (!presentIds.contains(sid)) {
                 Assistance absence = new Assistance();
                 absence.setStudent(inscription.getStudent());
-                absence.setTeacher(session.getDocente());
+                absence.setTeacher(session.getTeacher());
                 absence.setSession(session);
                 absence.setDate(LocalDateTime.now()); // ← fecha + hora del cierre
                 absence.setState("Ausente");
@@ -107,7 +107,7 @@ public class AssistanceService {
             }
         }
 
-        session.setActiva(false);
+        session.setActive(false);
         sessionRepository.save(session);
     }
 
